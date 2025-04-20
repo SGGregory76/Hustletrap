@@ -1,0 +1,66 @@
+
+<b><big>Blaze – Weed Grower</big></b><br><br>
+
+<b>Current Mood:</b> <span id="blazeMood">Loading...</span><br>
+<b>On Drug:</b> <span id="blazeDrug">--</span> <span id="blazeIcon"></span><br>
+<b>Behavior:</b> <span id="blazeBehavior">--</span><br>
+<b>Trade Options:</b> <span id="blazeTrade">--</span><br>
+<b>Loyalty:</b> <span id="blazeLoyalty">--%</span><br>
+<div style="width:100%;background:#333;border-radius:6px;overflow:hidden;height:6px;margin:6px 0;">
+  <div id="loyaltyBar" style="height:100%;width:0%;background:#2ecc71;"></div>
+</div>
+
+<br>
+<a href="https://hustletrap.blogspot.com/2025/04/mission-blaze.html?m=1" style="display:inline-block;margin-right:8px;padding:6px 12px;background:#555;color:#fff;border:1px solid #999;border-radius:6px;text-decoration:none;">▶ Start Mission</a>
+<a href="https://hustletrap.blogspot.com/p/contacts.html?m=1" style="display:inline-block;padding:6px 12px;background:#555;color:#fff;border:1px solid #999;border-radius:6px;text-decoration:none;">⬅ Back</a>
+
+<script>
+function getDrugIcon(drug) {
+  return {
+    "Weed": "🌿",
+    "Xanax": "💊",
+    "Adderall": "⚡",
+    "None": "🚫"
+  }[drug] || "";
+}
+
+const moods = ["Happy", "Irritated", "Focused", "Anxious", "Detached"];
+const drugs = ["Weed", "Xanax", "Adderall", "None"];
+
+const behaviors = {
+  "Weed": "Chill, open to low-risk trades.",
+  "Xanax": "Detached, ignores low-value trades.",
+  "Adderall": "Focused, seeks high-value items.",
+  "None": "Balanced behavior, standard rates."
+};
+
+const tradeOptions = {
+  "Happy": "Strains, seeds, and hydro supplies available.",
+  "Irritated": "Only low-tier strains available.",
+  "Focused": "Only premium strains, high pricing.",
+  "Anxious": "Avoids selling exotic or custom strains.",
+  "Detached": "Limited stock, no negotiation."
+};
+
+function updateBlazeProfile() {
+  const mood = moods[Math.floor(Math.random() * moods.length)];
+  const drug = drugs[Math.floor(Math.random() * drugs.length)];
+  const loyalty = parseInt(localStorage.getItem("blazeLoyalty") || "50");
+
+  document.getElementById("blazeMood").textContent = mood;
+  document.getElementById("blazeDrug").textContent = drug;
+  document.getElementById("blazeIcon").textContent = getDrugIcon(drug);
+  document.getElementById("blazeBehavior").textContent = behaviors[drug];
+  document.getElementById("blazeTrade").textContent = tradeOptions[mood];
+  document.getElementById("blazeLoyalty").textContent = loyalty + "%";
+
+  document.getElementById("loyaltyBar").style.width = loyalty + "%";
+  document.getElementById("loyaltyBar").style.background =
+    loyalty >= 60 ? "#2ecc71" : loyalty < 30 ? "#e74c3c" : "#f1c40f";
+}
+
+window.onload = () => {
+  updateBlazeProfile();
+  setInterval(updateBlazeProfile, 25000); // Refresh every 25 seconds
+};
+</script>
