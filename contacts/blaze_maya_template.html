@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blaze – Weed Grower</title>
+</head>
+<body style="background:#111;color:#fff;font-family:sans-serif;padding:20px;">
+<h2>Blaze – Weed Grower</h2>
+
+<p><strong>Role:</strong> Supplier of low to high-grade cannabis strains</p>
+<p><strong>Behavior:</strong> Mood influenced by strain type and trust. Performance-enhancing or relaxing effects impact trade mood.</p>
+
+<h3>Status:</h3>
+<p><strong>Mood:</strong> <span id="blazeMood">Loading...</span></p>
+<p><strong>Strain Active:</strong> <span id="blazeDrug">Loading...</span></p>
+<p><strong>Behavior:</strong> <span id="blazeBehavior">Analyzing...</span></p>
+
+<h3>Trade Access:</h3>
+<ul>
+  <li>Always available: Basic bud</li>
+  <li>Available if trusted: High-THC hybrid strains</li>
+  <li>Unavailable if loyalty < 30%</li>
+</ul>
+
+<script>
+const moods = ['Focused', 'Lazy', 'Paranoid', 'Creative'];
+const strains = ['Sativa', 'Indica', 'Hybrid', 'None'];
+
+function random(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function updateBlazeProfile() {
+  const mood = random(moods);
+  const strain = random(strains);
+  let behavior = "";
+
+  if (strain === 'Sativa') behavior = "Talkative and energized. Prices are firm.";
+  else if (strain === 'Indica') behavior = "Relaxed. May offer discounts.";
+  else if (strain === 'Hybrid') behavior = "Balanced mood. Willing to negotiate.";
+  else behavior = "Unmedicated. Neutral state.";
+
+  document.getElementById("blazeMood").textContent = mood;
+  document.getElementById("blazeDrug").textContent = strain;
+  document.getElementById("blazeBehavior").textContent = behavior;
+}
+
+updateBlazeProfile();
+setInterval(updateBlazeProfile, 25000);
+</script>
+</body>
+</html>
