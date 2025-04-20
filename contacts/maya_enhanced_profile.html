@@ -1,0 +1,66 @@
+
+<b><big>Maya – Courier Contact</big></b><br><br>
+
+<b>Current Mood:</b> <span id="mayaMood">Loading...</span><br>
+<b>On Drug:</b> <span id="mayaDrug">--</span> <span id="mayaIcon"></span><br>
+<b>Behavior:</b> <span id="mayaBehavior">--</span><br>
+<b>Trade Options:</b> <span id="mayaTrade">--</span><br>
+<b>Loyalty:</b> <span id="mayaLoyalty">--%</span><br>
+<div style="width:100%;background:#333;border-radius:6px;overflow:hidden;height:6px;margin:6px 0;">
+  <div id="loyaltyBar" style="height:100%;width:0%;background:#2ecc71;"></div>
+</div>
+
+<br>
+<a href="https://hustletrap.blogspot.com/2025/04/mission-maya.html?m=1" style="display:inline-block;margin-right:8px;padding:6px 12px;background:#555;color:#fff;border:1px solid #999;border-radius:6px;text-decoration:none;">▶ Start Mission</a>
+<a href="https://hustletrap.blogspot.com/p/contacts.html?m=1" style="display:inline-block;padding:6px 12px;background:#555;color:#fff;border:1px solid #999;border-radius:6px;text-decoration:none;">⬅ Back</a>
+
+<script>
+function getDrugIcon(drug) {
+  return {
+    "Weed": "🌿",
+    "Xanax": "💊",
+    "Adderall": "⚡",
+    "None": "🚫"
+  }[drug] || "";
+}
+
+const moods = ["Happy", "Irritated", "Focused", "Anxious", "Detached"];
+const drugs = ["Weed", "Xanax", "Adderall", "None"];
+
+const behaviors = {
+  "Weed": "Chill, open to low-risk trades.",
+  "Xanax": "Detached, ignores low-value trades.",
+  "Adderall": "Focused, seeks high-value items.",
+  "None": "Balanced behavior, standard rates."
+};
+
+const tradeOptions = {
+  "Happy": "All courier gear available.",
+  "Irritated": "Minor drugs only, courier gear limited.",
+  "Focused": "Courier gear prioritized, prices high.",
+  "Anxious": "Won’t trade risky items.",
+  "Detached": "Very limited, avoids negotiation."
+};
+
+function updateMayaProfile() {
+  const mood = moods[Math.floor(Math.random() * moods.length)];
+  const drug = drugs[Math.floor(Math.random() * drugs.length)];
+  const loyalty = parseInt(localStorage.getItem("mayaLoyalty") || "50");
+
+  document.getElementById("mayaMood").textContent = mood;
+  document.getElementById("mayaDrug").textContent = drug;
+  document.getElementById("mayaIcon").textContent = getDrugIcon(drug);
+  document.getElementById("mayaBehavior").textContent = behaviors[drug];
+  document.getElementById("mayaTrade").textContent = tradeOptions[mood];
+  document.getElementById("mayaLoyalty").textContent = loyalty + "%";
+
+  document.getElementById("loyaltyBar").style.width = loyalty + "%";
+  document.getElementById("loyaltyBar").style.background =
+    loyalty >= 60 ? "#2ecc71" : loyalty < 30 ? "#e74c3c" : "#f1c40f";
+}
+
+window.onload = () => {
+  updateMayaProfile();
+  setInterval(updateMayaProfile, 25000); // Refresh every 25 seconds
+};
+</script>
