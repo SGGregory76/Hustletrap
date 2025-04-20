@@ -1,1 +1,129 @@
 
+<h2 style="text-align:center; color:#fff;">Contacts</h2>
+
+<!-- Sorter -->
+<div style="text-align:center; margin-bottom:15px;">
+  <label for="sortBy" style="color:#ccc;">Sort By:</label>
+  <select id="sortBy" onchange="sortContacts()" style="background:#1c1c1c; color:#fff; padding:4px; border:1px solid #444; border-radius:6px;">
+    <option value="default">Default</option>
+    <option value="loyalty">Loyalty</option>
+    <option value="cash">Cash Traded</option>
+    <option value="items">Items Traded</option>
+  </select>
+</div>
+
+<!-- Contact Display -->
+<div id="contactList"></div>
+
+<style>
+  .contact-card {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 15px;
+    color: #ccc;
+    font-size: 13px;
+  }
+  .contact-card h3 {
+    margin: 0 0 5px;
+    font-size: 16px;
+    color: #fff;
+  }
+  .contact-card a {
+    display: inline-block;
+    padding: 6px 12px;
+    margin-top: 6px;
+    background: #444;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .contact-card a:hover {
+    background: #555;
+  }
+  .progress-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: #333;
+    overflow: hidden;
+    margin: 4px 0 10px;
+  }
+  .progress-fill {
+    height: 100%;
+    transition: width 0.3s ease;
+  }
+  .green { background: #2ecc71; }
+  .red { background: #e74c3c; }
+  .yellow { background: #f1c40f; }
+</style>
+
+<script>
+const contactData = [
+  {
+    id: "maya", name: "Maya", role: "Courier",
+    link: "https://hustletrap.blogspot.com/2025/04/maya.html?m=1"
+  },
+  {
+    id: "rico", name: "Rico", role: "Street Dealer",
+    link: "https://hustletrap.blogspot.com/2025/04/rico.html?m=1"
+  },
+  {
+    id: "blaze", name: "Blaze", role: "Weed Grower",
+    link: "https://hustletrap.blogspot.com/2025/04/blaze.html?m=1"
+  },
+  {
+    id: "skye", name: "Skye", role: "Chemist",
+    link: "https://hustletrap.blogspot.com/2025/04/skye.html?m=1"
+  }
+];
+
+function renderContacts(data) {
+  const container = document.getElementById("contactList");
+  container.innerHTML = "";
+
+  data.forEach(npc => {
+    const loyalty = parseInt(localStorage.getItem(npc.id + "Loyalty") || "50");
+    const betrayal = localStorage.getItem(npc.id + "Betrayal") === "true";
+    const cash = parseInt(localStorage.getItem(npc.id + "_cashTraded") || "0");
+    const items = parseInt(localStorage.getItem(npc.id + "_itemsTraded") || "0");
+    const mission = JSON.parse(localStorage.getItem("completedMissions") || "{}")[npc.id + "_fast_hands"];
+
+    const status = betrayal ? "Rival" : loyalty >= 60 ? "Trusted" : loyalty < 30 ? "Wary" : "Neutral";
+    const barColor = loyalty >= 60 ? "green" : loyalty < 30 ? "red" : "yellow";
+    const statusColor = betrayal ? "#f33" : loyalty < 30 ? "#f1c40f" : "#ccc";
+
+    const card = document.createElement("div");
+    card.className = "contact-card";
+    card.innerHTML = `
+      <h3>${npc.name}</h3>
+      <p><strong>Role:</strong> ${npc.role}</p>
+      <p><strong>Status:</strong> <span style="color:${statusColor}">${status}</span></p>
+      <p><strong>Loyalty:</strong> ${loyalty}%</p>
+      <div class="progress-bar"><div class="progress-fill ${barColor}" style="width:${loyalty}%"></div></div>
+      <p><strong>Cash Traded:</strong> $${cash}</p>
+      <p><strong>Items Traded:</strong> ${items}</p>
+      <p><strong>Mission Done:</strong> ${mission ? "Yes" : "No"}</p>
+      <a href="${npc.link}" target="_blank">Visit ${npc.name}'s Profile</a>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function sortContacts() {
+  const type = document.getElementById("sortBy").value;
+  const sorted = [...contactData].sort((a, b) => {
+    const getVal = id => {
+      if (type === "loyalty") return parseInt(localStorage.getItem(id + "Loyalty") || "50");
+      if (type === "cash") return parseInt(localStorage.getItem(id + "_cashTraded") || "0");
+      if (type === "items") return parseInt(localStorage.getItem(id + "_itemsTraded") || "0");
+      return 0;
+    };
+    return getVal(b.id) - getVal(a.id);
+  });
+  renderContacts(sorted);
+}
+
+renderContacts(contactData);
+</script>
