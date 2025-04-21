@@ -1,0 +1,50 @@
+<!-- Updated Settings Page with Persistent Save Button -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#101010;color:#fff;font-family:'Segoe UI',sans-serif;border-radius:12px;text-align:center;">
+
+  <h3 style="color:#66f;">Settings</h3>
+
+  <button id="saveBtn" style="margin:10px;padding:10px 16px;background:#28a745;border:none;border-radius:8px;color:white;font-weight:bold;">
+    Save Progress
+  </button>
+
+  <button id="resetBtn" style="margin:10px;padding:10px 16px;background:#dc3545;border:none;border-radius:8px;color:white;font-weight:bold;">
+    Reset Game
+  </button>
+
+  <p id="saveNotice" style="color:#aaa;margin-top:12px;"></p>
+
+</div>
+
+<script>
+function saveGame() {
+  const stats = JSON.parse(localStorage.getItem("stats")) || { xp: 0, cash: 0, rep: 0, heat: 0 };
+  const inventory = JSON.parse(localStorage.getItem("inventory")) || [];
+  const log = JSON.parse(localStorage.getItem("gameLog")) || [];
+  const completed = JSON.parse(localStorage.getItem("completedMissions")) || [];
+  const encoded = btoa(JSON.stringify({ stats, inventory, log, completed }));
+  localStorage.setItem("saveCode", encoded);
+  localStorage.setItem("lastSaved", Date.now());
+  document.getElementById("saveNotice").textContent = "Game progress saved!";
+}
+
+function resetGame() {
+  localStorage.clear();
+  document.getElementById("saveNotice").textContent = "Game data reset!";
+  window.dispatchEvent(new Event("storage"));
+}
+
+// Event delegation for dynamic environments
+document.addEventListener("click", function(e) {
+  if (e.target && e.target.id === "saveBtn") saveGame();
+  if (e.target && e.target.id === "resetBtn") resetGame();
+});
+
+// Auto-notify if recently saved
+document.addEventListener("DOMContentLoaded", () => {
+  const last = parseInt(localStorage.getItem("lastSaved") || 0);
+  if (Date.now() - last < 10000) {
+    document.getElementById("saveNotice").textContent = "Last saved just now.";
+  }
+});
+</script>
