@@ -1,0 +1,112 @@
+<!-- New Missions Page System - REP Gated with Dialog and Multi-Stage Support -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#101010;font-family:'Segoe UI',sans-serif;color:#fff;border-radius:12px;">
+  <h3 style="text-align:center;">Missions - Maya</h3>
+  <div id="missionList" style="margin-top:10px;"></div>
+</div>
+
+<script>
+const missions = [
+  {
+    id: "maya1",
+    title: "Night Drop",
+    rep: 0,
+    desc: "Deliver a bag before curfew.",
+    dialog: "You wanna eat, you hustle. This drop’s easy — don’t screw it up.",
+    rewards: { xp: 6, rep: 4, cash: 40, item: { name: "LSD", icon: "🔮" } }
+  },
+  {
+    id: "maya2",
+    title: "Tainted Package",
+    rep: 4,
+    desc: "Defuse a bad deal or bribe a client.",
+    dialog: "I didn’t cut it, I swear. Someone’s playing with my stash.",
+    rewards: { xp: 8, rep: 6, cash: 60, item: { name: "Adderall", icon: "💊" } }
+  },
+  {
+    id: "maya3",
+    title: "Courier Loyalty",
+    rep: 10,
+    desc: "Choose to defend Maya or tip off her rival.",
+    dialog: "They’re stepping on my turf. I need to know you’re down.",
+    rewards: {
+      loyal: { xp: 10, rep: 8, cash: 100, perk: "Courier Loyalty" },
+      betray: { xp: 10, rep: -10, cash: 80, unlock: "Rival Contact" }
+    },
+    branch: true
+  }
+];
+
+function getStats() {
+  return JSON.parse(localStorage.getItem("stats") || "{}");
+}
+function getCompleted() {
+  return JSON.parse(localStorage.getItem("completedMissions") || "[]");
+}
+function saveCompleted(data) {
+  localStorage.setItem("completedMissions", JSON.stringify(data));
+}
+
+function addItem(item) {
+  const inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+  inv.push({ name: item.name, icon: item.icon, desc: "Mission reward" });
+  localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function logEntry(msg) {
+  const logs = JSON.parse(localStorage.getItem("gameLog") || "[]");
+  logs.unshift({ time: new Date().toLocaleString(), message: msg });
+  localStorage.setItem("gameLog", JSON.stringify(logs));
+}
+
+function completeMission(id, reward) {
+  const stats = getStats();
+  const done = getCompleted();
+  if (done.includes(id)) return;
+
+  stats.xp = (stats.xp || 0) + (reward.xp || 0);
+  stats.rep = (stats.rep || 0) + (reward.rep || 0);
+  stats.cash = (stats.cash || 0) + (reward.cash || 0);
+
+  localStorage.setItem("stats", JSON.stringify(stats));
+  localStorage.setItem("statsUpdated", Date.now());
+  addItem(reward.item);
+  done.push(id);
+  saveCompleted(done);
+
+  logEntry(`Completed ${id}: Gained ${reward.xp} XP, ${reward.rep} REP, $${reward.cash}, ${reward.item.icon} ${reward.item.name}`);
+  renderMissions();
+}
+
+function renderMissions() {
+  const stats = getStats();
+  const completed = getCompleted();
+  const div = document.getElementById("missionList");
+  div.innerHTML = "";
+
+  missions.forEach(m => {
+    const isUnlocked = (stats.rep || 0) >= m.rep;
+    const done = completed.includes(m.id);
+    const block = document.createElement("div");
+    block.style = "background:#1a1a1a;padding:10px;margin-bottom:12px;border-radius:8px;";
+    block.innerHTML = `<strong>${m.title}</strong><br><em>${m.desc}</em><br><small>${m.dialog}</small><br><br>`;
+
+    if (!isUnlocked) {
+      block.innerHTML += `<span style='color:#888;'>Requires REP ${m.rep}</span>`;
+    } else if (done) {
+      block.innerHTML += `<span style='color:#aaa;'>Completed</span>`;
+    } else if (m.branch) {
+      block.innerHTML += `
+        <button onclick="completeMission('${m.id}', missions.find(x=>x.id==='${m.id}').rewards.loyal)" style="margin-right:8px;">Loyal</button>
+        <button onclick="completeMission('${m.id}', missions.find(x=>x.id==='${m.id}').rewards.betray)">Betray</button>
+      `;
+    } else {
+      block.innerHTML += `<button onclick="completeMission('${m.id}', missions.find(x=>x.id==='${m.id}').rewards)">Complete</button>`;
+    }
+
+    div.appendChild(block);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", renderMissions);
+</script>
