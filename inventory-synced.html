@@ -1,0 +1,65 @@
+<!-- Inventory Page with Links to Chem Lab and Shop -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#111;font-family:'Segoe UI',sans-serif;color:#fff;border-radius:12px;">
+  <h3 style="text-align:center;">Inventory</h3>
+
+  <div class="stats-bar" style="text-align:center;background:#000;padding:8px;margin:10px 0;border-radius:8px;">
+    Level: <span id="level">?</span> |
+    XP: <span id="xp">?</span> |
+    REP: <span id="rep">?</span> |
+    Heat: <span id="heat">?</span> |
+    Cash: <span id="cash">?</span>
+  </div>
+
+  <div id="inventoryList" style="margin-top:10px;"></div>
+
+  <div style="text-align:center;margin-top:20px;">
+    <a href="craft.html" style="color:#66f;margin-right:15px;">Go to Chem Lab</a>
+    <a href="shop.html" style="color:#66f;">Visit Store</a>
+  </div>
+</div>
+
+<script>
+function getLevel(xp) {
+  return Math.floor(xp / 10) + 1;
+}
+
+function getStats() {
+  return JSON.parse(localStorage.getItem("stats")) || { xp: 0, rep: 0, cash: 0, heat: 0 };
+}
+
+function updateStatsUI() {
+  const stats = getStats();
+  const level = getLevel(stats.xp);
+  document.getElementById("level").textContent = level;
+  document.getElementById("xp").textContent = stats.xp;
+  document.getElementById("rep").textContent = stats.rep;
+  document.getElementById("heat").textContent = stats.heat;
+  document.getElementById("cash").textContent = stats.cash;
+}
+
+function renderInventory() {
+  const inv = JSON.parse(localStorage.getItem("inventory")) || [];
+  const container = document.getElementById("inventoryList");
+
+  if (inv.length === 0) {
+    container.innerHTML = "<p>No items in inventory.</p>";
+    return;
+  }
+
+  container.innerHTML = inv.map(item => `
+    <div style="background:#1a1a1a;padding:10px;margin-bottom:10px;border-radius:8px;">
+      <strong>${item.icon || ""} ${item.name}</strong><br>
+      <em>${item.desc || ""}</em>
+    </div>`).join("");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  updateStatsUI();
+  renderInventory();
+});
+
+window.addEventListener("storage", (e) => {
+  if (e.key === "statsUpdated" || e.key === "gameReset") updateStatsUI();
+});
+</script>
