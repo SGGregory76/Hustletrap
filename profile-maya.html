@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Maya - Profile</title>
+  <style>
+    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; }
+    .trade-table { border-top: 1px solid #444; padding-top: 10px; margin-top: 10px; }
+    #dealResult { color: yellow; margin-top: 10px; }
+    .icon-text { font-size: 18px; margin-right: 6px; }
+  </style>
+</head>
+<body>
+  <h2>Maya</h2>
+  <p><strong>Role:</strong> Street Dealer</p>
+  <p><strong>Mood:</strong> <span id="moodText">Loading...</span></p>
+  <p><strong>Currently on:</strong>
+    <span class="icon-text" id="drugIcon">💊</span>
+    <span id="drugLabel">Loading...</span>
+  </p>
+
+  <div class="trade-table" id="tradeBehavior"></div>
+
+  <div style="margin-top: 12px;">
+    <button onclick="attemptBuy(npcId, 100)">Buy for $100</button>
+    <button onclick="attemptSell(npcId, 40)">Sell for $40</button>
+  </div>
+
+  <p id="dealResult"></p>
+
+  <script>
+    const npcId = "Maya";
+
+    const drugData = {
+      Xanax: { mood: "Detached", icon: "💊", trade: [
+        "Sells: Minor drugs, avoids complex trades.",
+        "Buys: Small quantities.",
+        "Mood: May ignore low-value interactions."
+      ], effect: { priceMultiplier: 1.2, ignoreChance: 0.4, repGain: -1 }},
+      Marijuana: { mood: "Chilled", icon: "🌿", trade: [
+        "Sells: Weed, oils, edibles.",
+        "Buys: Seeds, chill accessories.",
+        "Mood: Friendly and flexible."
+      ], effect: { priceMultiplier: 0.9, ignoreChance: 0.05, repGain: 1 }},
+      Adderall: { mood: "Alert", icon: "⚡", trade: [
+        "Sells: Focus gear, pills.",
+        "Buys: Tactical items.",
+        "Mood: Rushed and sharp."
+      ], effect: { priceMultiplier: 1.3, ignoreChance: 0.15, repGain: 0 }},
+      LSD: { mood: "Unpredictable", icon: "🌈", trade: [
+        "Sells: Mystery mixes.",
+        "Buys: Experimental gear.",
+        "Mood: Random outcomes."
+      ], effect: { priceMultiplier: "variable", ignoreChance: 0.2, repGain: "random" }}
+    };
+
+    function rollDrug() {
+      const keys = Object.keys(drugData);
+      const drug = keys[Math.floor(Math.random() * keys.length)];
+      localStorage.setItem(`${npcId}_drug`, drug);
+      localStorage.setItem(`${npcId}_lastUpdate`, Date.now());
+    }
+
+    function getBehavior() {
+      const drug = localStorage.getItem(`${npcId}_drug`) || "Xanax";
+      return { drug, ...drugData[drug] };
+    }
+
+    function updateProfile() {
+      const { drug, mood, icon, trade } = getBehavior();
+      document.getElementById("moodText").textContent = mood;
+      document.getElementById("drugIcon").textContent = icon;
+      document.getElementById("drugLabel").textContent = drug;
+      document.getElementById("tradeBehavior").innerHTML =
+        `<h4>Trade Options:</h4><ul>${trade.map(i => `<li>${i}</li>`).join("")}</ul>`;
+    }
+
+    function refreshState() {
+      const last = parseInt(localStorage.getItem(`${npcId}_lastUpdate`) || "0");
+      const now = Date.now();
+      if (now - last > 1000 * 60 * 4) rollDrug();
+      updateProfile();
+    }
+
+    function attemptBuy(npcId, basePrice) {
+      const { effect } = getBehavior();
+      let price = (effect.priceMultiplier === "variable")
+        ? basePrice * (Math.random() * 0.6 + 0.7)
+        : basePrice * (effect.priceMultiplier || 1.0);
+      if (Math.random() < effect.ignoreChance) return showDeal(`${npcId} won't sell right now.`);
+      const rep = (effect.repGain === "random") ? Math.floor(Math.random() * 3) - 1 : effect.repGain;
+      updatePlayer("cash", -price); updatePlayer("rep", rep);
+      showDeal(`Bought for $${price.toFixed(0)}. REP ${rep >= 0 ? "+" : ""}${rep}`);
+    }
+
+    function attemptSell(npcId, baseValue) {
+      const { effect } = getBehavior();
+      let payout = (effect.priceMultiplier === "variable")
+        ? baseValue * (Math.random() * 0.6 + 0.7)
+        : baseValue * (effect.priceMultiplier || 1.0);
+      if (Math.random() < effect.ignoreChance) return showDeal(`${npcId} rejected your offer.`);
+      const rep = (effect.repGain === "random") ? Math.floor(Math.random() * 3) : Math.max(0, effect.repGain);
+      updatePlayer("cash", payout); updatePlayer("rep", rep);
+      showDeal(`Sold for $${payout.toFixed(0)}. REP ${rep >= 0 ? "+" : ""}${rep}`);
+    }
+
+    function updatePlayer(stat, change) {
+      const val = parseFloat(localStorage.getItem(stat) || "0") + change;
+      localStorage.setItem(stat, val);
+    }
+
+    function showDeal(msg) {
+      document.getElementById("dealResult").textContent = msg;
+    }
+
+    window.addEventListener("load", refreshState);
+  </script>
+</body>
+</html>
