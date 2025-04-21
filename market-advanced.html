@@ -1,0 +1,79 @@
+<!-- Advanced Market Page with Stat Restrictions and Shopkeeper Mood -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#101010;color:#fff;font-family:'Segoe UI',sans-serif;border-radius:12px;">
+  <h3 style="text-align:center;">Market</h3>
+  <p style="text-align:center;margin-bottom:10px;" id="shopMood"></p>
+  <div id="marketItems" style="margin-top:10px;"></div>
+</div>
+
+<script>
+const marketItems = [
+  { name: "Scale", icon: "⚖️", desc: "Precision tool for weighing product.", cost: 100, minRep: 0, minXP: 0 },
+  { name: "Gloves", icon: "🧤", desc: "Avoid contamination or prints.", cost: 50, minRep: 0, minXP: 0 },
+  { name: "Grinder", icon: "⚙️", desc: "Prepare herbs and product smoothly.", cost: 75, minRep: 5, minXP: 10 },
+  { name: "Packaging", icon: "📦", desc: "Wrap product for sale or transport.", cost: 60, minRep: 5, minXP: 5 },
+  { name: "Notebook", icon: "📓", desc: "Keep records and recipes.", cost: 40, minRep: 0, minXP: 0 }
+];
+
+const moods = [
+  { mood: "Chill", desc: "The shopkeeper is relaxed. Prices are fair." },
+  { mood: "Greedy", desc: "The shopkeeper raises prices by 20%." },
+  { mood: "Wary", desc: "Only sells to trusted buyers (REP 5+)." }
+];
+
+const currentMood = moods[Math.floor(Math.random() * moods.length)];
+
+function getStats() {
+  return JSON.parse(localStorage.getItem("stats")) || { xp: 0, rep: 0, cash: 0, heat: 0 };
+}
+
+function setStats(s) {
+  localStorage.setItem("stats", JSON.stringify(s));
+  localStorage.setItem("statsUpdated", Date.now());
+}
+
+function buyItem(item) {
+  const stats = getStats();
+  let price = item.cost;
+
+  if (currentMood.mood === "Greedy") price = Math.ceil(item.cost * 1.2);
+
+  if (stats.cash < price) return alert("Not enough cash!");
+
+  stats.cash -= price;
+  const inv = JSON.parse(localStorage.getItem("inventory")) || [];
+  inv.push({ name: item.name, icon: item.icon, desc: item.desc });
+  localStorage.setItem("inventory", JSON.stringify(inv));
+  setStats(stats);
+  alert(`${item.name} purchased!`);
+  displayMarket(); // refresh after purchase
+}
+
+function displayMarket() {
+  const stats = getStats();
+  const div = document.getElementById("marketItems");
+
+  document.getElementById("shopMood").innerHTML = `<em>Shopkeeper Mood:</em> <strong>${currentMood.mood}</strong><br>${currentMood.desc}`;
+
+  div.innerHTML = marketItems.map(item => {
+    let price = item.cost;
+    if (currentMood.mood === "Greedy") price = Math.ceil(item.cost * 1.2);
+
+    const locked = stats.rep < item.minRep || stats.xp < item.minXP;
+    const blockedByMood = currentMood.mood === "Wary" && stats.rep < 5;
+
+    const isLocked = locked || blockedByMood;
+
+    return `
+      <div style="background:#1c1c1c;padding:10px;margin-bottom:10px;border-radius:8px;">
+        <strong>${item.icon} ${item.name}</strong><br>
+        ${item.desc}<br>
+        <em>Price: $${price}</em><br>
+        ${isLocked ? `<span style="color:#f55;">Locked (Requires REP ${item.minRep}, XP ${item.minXP})</span>` :
+        `<button onclick='buyItem(${JSON.stringify(item)})' style="margin-top:5px;padding:5px 10px;background:#28a745;border:none;border-radius:5px;color:#fff;">Buy</button>`}
+      </div>`;
+  }).join("");
+}
+
+document.addEventListener("DOMContentLoaded", displayMarket);
+</script>
