@@ -1,0 +1,28 @@
+<!-- Filled Out Character Page -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#101010;color:#fff;font-family:'Segoe UI',sans-serif;border-radius:12px;">
+  <h3 style="text-align:center;">Player Profile</h3>
+  <div id="characterStats" style="text-align:center;margin-top:10px;"></div>
+</div>
+
+<script>
+function getStats() {
+  return JSON.parse(localStorage.getItem("stats")) || { xp: 0, rep: 0, cash: 0, heat: 0 };
+}
+
+function updateCharacterStats() {
+  const s = getStats();
+  const lvl = Math.floor(s.xp / 10) + 1;
+  document.getElementById("characterStats").innerHTML =
+    `<strong>Level:</strong> ${lvl}<br>
+     <strong>XP:</strong> ${s.xp}<br>
+     <strong>Reputation:</strong> ${s.rep}<br>
+     <strong>Heat:</strong> ${s.heat}<br>
+     <strong>Cash:</strong> $${s.cash}`;
+}
+
+document.addEventListener("DOMContentLoaded", updateCharacterStats);
+window.addEventListener("storage", (e) => {
+  if (e.key === "statsUpdated") updateCharacterStats();
+});
+</script>
