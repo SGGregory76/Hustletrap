@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Skye - Profile</title>
+  <style>
+    body { background: #101010; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+    .npc-profile { background: #111; padding: 15px; border-radius: 12px; }
+    .icon { font-size: 28px; margin-right: 6px; }
+    .role-badge { background: #444; color: #00ffcc; padding: 2px 6px; border-radius: 6px; font-size: 12px; margin-left: 8px; }
+    .status-box { background: #1a1a1a; padding: 10px; margin-top: 10px; border-radius: 8px; }
+    .traits { margin: 10px 0; }
+    .trait { background: #222; color: #ccc; padding: 4px 8px; border-radius: 6px; font-size: 12px; margin-right: 5px; display: inline-block; }
+    .summary { margin-top: 10px; font-style: italic; }
+    .trade-behavior { margin-top: 15px; }
+    .mission-btn { background: #28a745; padding: 8px 12px; color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div class="npc-profile">
+    <h2><span class="icon">🌈</span> Skye <span class="role-badge">Connector & Supplier</span></h2>
+
+    <div class="status-box">
+      <p><strong>Mood:</strong> <span id="moodText">Loading...</span></p>
+      <p><strong>On Drug:</strong> <span id="drugLabel">...</span> <span id="drugIcon">💊</span></p>
+    </div>
+
+    <div class="traits">
+      <span class="trait">Smooth</span>
+      <span class="trait">Intuitive</span>
+      <span class="trait">Ambitious</span>
+    </div>
+
+    <p class="summary">
+      Skye moves in elite circles and opens access to rare goods and power players. She’s strategic, unpredictable, and crucial to high-level expansion.
+    </p>
+
+    <div class="trade-behavior" id="tradeBehavior">
+      <h4>Trade Tendencies</h4>
+      <ul></ul>
+    </div>
+
+    <a href="/p/skye-missions.html?m=1" class="mission-btn">View Missions</a>
+  </div>
+
+  <script>
+    const npcId = "Skye";
+    const drugData = {
+      Xanax: { mood: "Calm", icon: "💊", trade: [
+        "Sells: Safe options only.",
+        "Buys: Simple distractions.",
+        "Mood: Low energy, avoids deals."
+      ]},
+      Marijuana: { mood: "Charmed", icon: "🌿", trade: [
+        "Sells: Designer strains.",
+        "Buys: Boutique items.",
+        "Mood: Witty and generous."
+      ]},
+      Adderall: { mood: "Focused", icon: "⚡", trade: [
+        "Sells: Wholesale routes and logistics.",
+        "Buys: Market analytics and boosts.",
+        "Mood: Business-first."
+      ]},
+      LSD: { mood: "Elevated", icon: "🌈", trade: [
+        "Sells: Dreamstate designer kits.",
+        "Buys: Rare components and visions.",
+        "Mood: Disruptive and inspired."
+      ]}
+    };
+
+    function rollDrug() {
+      const keys = Object.keys(drugData);
+      const drug = keys[Math.floor(Math.random() * keys.length)];
+      localStorage.setItem(`${npcId}_drug`, drug);
+      localStorage.setItem(`${npcId}_lastUpdate`, Date.now());
+    }
+
+    function getBehavior() {
+      const drug = localStorage.getItem(`${npcId}_drug`) || "LSD";
+      return { drug, ...drugData[drug] };
+    }
+
+    function updateProfile() {
+      const { drug, mood, icon, trade } = getBehavior();
+      document.getElementById("moodText").textContent = mood;
+      document.getElementById("drugIcon").textContent = icon;
+      document.getElementById("drugLabel").textContent = drug;
+      document.querySelector("#tradeBehavior ul").innerHTML = trade.map(i => `<li>${i}</li>`).join("");
+    }
+
+    function refreshState() {
+      const last = parseInt(localStorage.getItem(`${npcId}_lastUpdate`) || "0");
+      const now = Date.now();
+      if (now - last > 1000 * 60 * 4) rollDrug();
+      updateProfile();
+    }
+
+    window.addEventListener("load", refreshState);
+  </script>
+</body>
+</html>
