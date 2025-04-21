@@ -1,0 +1,55 @@
+<!-- Reconstructed Market Page -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#101010;color:#fff;font-family:'Segoe UI',sans-serif;border-radius:12px;">
+  <h3 style="text-align:center;">Market</h3>
+  <div id="marketItems" style="margin-top:10px;"></div>
+</div>
+
+<script>
+const marketItems = [
+  { name: "Scale", icon: "⚖️", desc: "Precision tool for weighing product.", cost: 100 },
+  { name: "Gloves", icon: "🧤", desc: "Avoid contamination or prints.", cost: 50 },
+  { name: "Grinder", icon: "⚙️", desc: "Prepare herbs and product smoothly.", cost: 75 },
+  { name: "Packaging", icon: "📦", desc: "Wrap product for sale or transport.", cost: 60 },
+  { name: "Notebook", icon: "📓", desc: "Keep records and recipes.", cost: 40 }
+];
+
+function getStats() {
+  return JSON.parse(localStorage.getItem("stats")) || { cash: 0 };
+}
+
+function setStats(s) {
+  localStorage.setItem("stats", JSON.stringify(s));
+  localStorage.setItem("statsUpdated", Date.now());
+}
+
+function buyItem(item) {
+  const stats = getStats();
+  if (stats.cash >= item.cost) {
+    stats.cash -= item.cost;
+
+    const inv = JSON.parse(localStorage.getItem("inventory")) || [];
+    inv.push({ name: item.name, icon: item.icon, desc: item.desc });
+    localStorage.setItem("inventory", JSON.stringify(inv));
+
+    setStats(stats);
+    alert(`${item.name} purchased!`);
+  } else {
+    alert("Not enough cash!");
+  }
+}
+
+function displayMarket() {
+  const div = document.getElementById("marketItems");
+  div.innerHTML = marketItems.map(item => `
+    <div style="background:#1c1c1c;padding:10px;margin-bottom:10px;border-radius:8px;">
+      <strong>${item.icon} ${item.name}</strong><br>
+      ${item.desc}<br>
+      <em>Price: $${item.cost}</em><br>
+      <button onclick='buyItem(${JSON.stringify(item)})' style="margin-top:5px;padding:5px 10px;background:#28a745;border:none;border-radius:5px;color:#fff;">Buy</button>
+    </div>
+  `).join("");
+}
+
+document.addEventListener("DOMContentLoaded", displayMarket);
+</script>
