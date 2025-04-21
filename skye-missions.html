@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Skye Missions</title>
+  <style>
+    body { background: #101010; color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+    .mission-card {
+      background: #1a1a1a;
+      padding: 14px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+    }
+    button {
+      padding: 6px 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #66f;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h2>Skye - Mission Arc</h2>
+  <div id="missionList"></div>
+
+  <script>
+    const missions = [
+  {
+    "id": "skye1",
+    "title": "Secure VIP Client",
+    "rep": 0,
+    "desc": "Deliver a microdose + aesthetic booster kit to a luxury lounge.",
+    "dialog": "Keep your mouth shut and your shoes clean. They tip in thousands or stab in silence.",
+    "rewards": {
+      "xp": 6,
+      "rep": 4,
+      "cash": 50,
+      "item": {
+        "name": "Boost Kit",
+        "icon": "\u2728"
+      }
+    }
+  },
+  {
+    "id": "skye2",
+    "title": "Influencer Supply",
+    "rep": 6,
+    "desc": "Deliver curated drops to Skye\u2019s influencer network. Appearance matters.",
+    "dialog": "They don't want dealers. They want aesthetic experiences. You got the vibe?",
+    "rewards": {
+      "xp": 10,
+      "rep": 6,
+      "cash": 100,
+      "item": {
+        "name": "Image Enhancer",
+        "icon": "\ud83d\udc84"
+      }
+    }
+  },
+  {
+    "id": "skye3",
+    "title": "Gala Delivery",
+    "rep": 12,
+    "desc": "Deliver during a masquerade gala. Blend in or risk exposure.",
+    "dialog": "Blend in, stay quiet, and don\u2019t drink the punch unless you want to forget the deal.",
+    "rewards": {
+      "xp": 12,
+      "rep": 8,
+      "cash": 120,
+      "item": {
+        "name": "Designer Serum",
+        "icon": "\ud83d\udc57"
+      }
+    }
+  },
+  {
+    "id": "skye4",
+    "title": "Loyalty or Leverage",
+    "rep": 18,
+    "desc": "Decide whether to protect or blackmail a corrupt client.",
+    "dialog": "Your move: loyalty buys protection, blackmail buys leverage.",
+    "rewards": {
+      "loyal": {
+        "xp": 15,
+        "rep": 12,
+        "cash": 150,
+        "unlock": "Prestige Store Access"
+      },
+      "betray": {
+        "xp": 15,
+        "rep": -12,
+        "cash": 180,
+        "perk": "Market Exploit Perk"
+      }
+    },
+    "branch": true
+  }
+];
+
+    function getStats() {
+      return JSON.parse(localStorage.getItem("stats") || "{}");
+    }
+    function getCompleted() {
+      return JSON.parse(localStorage.getItem("completedMissions") || "[]");
+    }
+    function saveCompleted(data) {
+      localStorage.setItem("completedMissions", JSON.stringify(data));
+    }
+    function addItem(item) {
+      const inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+      inv.push({ name: item.name, icon: item.icon, desc: "Mission reward" });
+      localStorage.setItem("inventory", JSON.stringify(inv));
+    }
+    function logEntry(msg) {
+      const logs = JSON.parse(localStorage.getItem("gameLog") || "[]");
+      logs.unshift({ time: new Date().toLocaleString(), message: msg });
+      localStorage.setItem("gameLog", JSON.stringify(logs));
+    }
+    function completeMission(id, reward) {
+      const stats = getStats();
+      const done = getCompleted();
+      if (done.includes(id)) return;
+
+      stats.xp = (stats.xp || 0) + (reward.xp || 0);
+      stats.rep = (stats.rep || 0) + (reward.rep || 0);
+      stats.cash = (stats.cash || 0) + (reward.cash || 0);
+
+      localStorage.setItem("stats", JSON.stringify(stats));
+      localStorage.setItem("statsUpdated", Date.now());
+      if (reward.item) addItem(reward.item);
+      done.push(id);
+      saveCompleted(done);
+      logEntry(`Completed {id}: Gained {reward.xp} XP, {reward.rep} REP, ${reward.cash}` + (reward.item ? `, {reward.item.icon} {reward.item.name}` : ""));
+      renderMissions();
+    }
+    function renderMissions() {
+      const stats = getStats();
+      const completed = getCompleted();
+      const div = document.getElementById("missionList");
+      div.innerHTML = "";
+
+      missions.forEach(m => {
+        const isUnlocked = (stats.rep || 0) >= m.rep;
+        const done = completed.includes(m.id);
+        const card = document.createElement("div");
+        card.className = "mission-card";
+        card.innerHTML = `<strong>{m.title}</strong><br><em>{m.desc}</em><br><small>{m.dialog}</small><br><br>`;
+
+        if (!isUnlocked) {
+          card.innerHTML += `<span style='color:#888;'>Requires REP {m.rep}</span>`;
+        } else if (done) {
+          card.innerHTML += `<span style='color:#aaa;'>Completed</span>`;
+        } else if (m.branch) {
+          card.innerHTML += `
+            <button onclick="completeMission('{m.id}', missions.find(x=>x.id==='{m.id}').rewards.loyal)">Loyal</button>
+            <button onclick="completeMission('{m.id}', missions.find(x=>x.id==='{m.id}').rewards.betray)">Betray</button>
+          `;
+        } else {
+          card.innerHTML += `<button onclick="completeMission('{m.id}', missions.find(x=>x.id==='{m.id}').rewards)">Complete</button>`;
+        }
+        div.appendChild(card);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", renderMissions);
+  </script>
+</body>
+</html>
