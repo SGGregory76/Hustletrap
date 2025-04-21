@@ -1,0 +1,30 @@
+<!-- Filled Out Map Page -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#101010;font-family:'Segoe UI',sans-serif;color:#fff;border-radius:12px;">
+  <h3 style="text-align:center;">City Map</h3>
+  <div id="mapList" style="margin-top:10px;"></div>
+</div>
+
+<script>
+const mapAreas = [
+  { name: "Street Corner", icon: "🧍‍♂️", link: "#", desc: "A hotspot for petty deals and quick hustles." },
+  { name: "Warehouse", icon: "🏭", link: "#", desc: "Where large quantities of goods are stashed or packaged." },
+  { name: "Club", icon: "🎶", link: "#", desc: "Night scene, perfect for pushing party products." },
+  { name: "Safehouse", icon: "🏚️", link: "#", desc: "Your hideout. Rest, plan, or lay low when heat is high." },
+  { name: "Market", icon: "🛒", link: "#", desc: "Buy supplies, tools, and materials from gray vendors." },
+  { name: "Chem Lab", icon: "⚗️", link: "#", desc: "Locked. Requires crafting equipment and higher level." }
+];
+
+function displayMap() {
+  const div = document.getElementById("mapList");
+  div.innerHTML = mapAreas.map(loc => `
+    <div style="background:#1c1c1c;padding:10px;margin-bottom:10px;border-radius:8px;">
+      <strong>${loc.icon} ${loc.name}</strong><br>
+      ${loc.desc}<br>
+      <a href="${loc.link}" style="color:#66f;">Visit</a>
+    </div>
+  `).join("");
+}
+
+document.addEventListener("DOMContentLoaded", displayMap);
+</script>
