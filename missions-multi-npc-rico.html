@@ -1,0 +1,202 @@
+<!-- Multi-NPC Missions Page with Dynamic Selection -->
+
+<div style="max-width:360px;margin:20px auto;padding:15px;background:#101010;font-family:'Segoe UI',sans-serif;color:#fff;border-radius:12px;">
+  <h3 style="text-align:center;">Available Missions</h3>
+  <select id="npcSelector" onchange="renderMissions()" style="width:100%;padding:8px;margin-bottom:14px;border-radius:6px;background:#1a1a1a;color:#fff;">
+    <option value="maya">Maya</option>
+    <option value="rico">Rico</option>
+    <option value="blaze">Blaze</option>
+    <option value="skye">Skye</option>
+  </select>
+  <div id="missionList"></div>
+</div>
+
+<script>
+const missionData = {
+  maya: [
+    {
+      id: "maya1",
+      title: "Night Drop",
+      rep: 0,
+      desc: "Deliver a bag before curfew.",
+      dialog: "You wanna eat, you hustle. This drop’s easy — don’t screw it up.",
+      rewards: { xp: 6, rep: 4, cash: 40, item: { name: "LSD", icon: "🔮" } }
+    },
+    {
+      id: "maya2",
+      title: "Tainted Package",
+      rep: 4,
+      desc: "Defuse a bad deal or bribe a client.",
+      dialog: "I didn’t cut it, I swear. Someone’s playing with my stash.",
+      rewards: { xp: 8, rep: 6, cash: 60, item: { name: "Adderall", icon: "💊" } }
+    },
+    {
+      id: "maya3",
+      title: "Courier Loyalty",
+      rep: 10,
+      desc: "Choose to defend Maya or tip off her rival.",
+      dialog: "They’re stepping on my turf. I need to know you’re down.",
+      rewards: {
+        loyal: { xp: 10, rep: 8, cash: 100, perk: "Courier Loyalty" },
+        betray: { xp: 10, rep: -10, cash: 80, unlock: "Rival Contact" }
+      },
+      branch: true
+    }
+  ],
+  rico: [
+  {
+    "id": "rico1",
+    "title": "Protect Turf",
+    "rep": 0,
+    "desc": "Guard Maya\u2019s street corner from a rival threat.",
+    "dialog": "If you wanna hang around, prove you're not soft. Handle it.",
+    "rewards": {
+      "xp": 6,
+      "rep": 5,
+      "cash": 40,
+      "item": {
+        "name": "Street Armor",
+        "icon": "\ud83e\uddba"
+      }
+    }
+  },
+  {
+    "id": "rico2",
+    "title": "Intercept Deal",
+    "rep": 5,
+    "desc": "Bust up a back-alley exchange before it finishes.",
+    "dialog": "They\u2019re moving weight through our turf. Stop them, clean.",
+    "rewards": {
+      "xp": 8,
+      "rep": 7,
+      "cash": 70,
+      "item": {
+        "name": "Intel Packet",
+        "icon": "\ud83d\udce6"
+      }
+    }
+  },
+  {
+    "id": "rico3",
+    "title": "Warpath Choice",
+    "rep": 12,
+    "desc": "Rico's ready to go full lethal. You in?",
+    "dialog": "We end this. But I need to know if you\u2019re riding or pulling back.",
+    "rewards": {
+      "loyal": {
+        "xp": 12,
+        "rep": 10,
+        "cash": 120,
+        "perk": "Reduced Heat on Missions"
+      },
+      "betray": {
+        "xp": 10,
+        "rep": -12,
+        "cash": 100,
+        "unlock": "Enemy Faction Unlock"
+      }
+    },
+    "branch": true
+  },
+  {
+    "id": "rico4",
+    "title": "Enforcer\u2019s Reckoning",
+    "rep": 18,
+    "desc": "Rico's being hunted. Help him escape or turn him in.",
+    "dialog": "They got me in their sights. You trust me? Or you switching sides?",
+    "rewards": {
+      "loyal": {
+        "xp": 15,
+        "rep": 12,
+        "cash": 150,
+        "unlock": "Heat Cooldown Passive"
+      },
+      "betray": {
+        "xp": 15,
+        "rep": -15,
+        "cash": 180,
+        "perk": "Police Ally Triggered"
+      }
+    },
+    "branch": true
+  }
+],
+  blaze: [],
+  skye: []
+};
+
+function getStats() {
+  return JSON.parse(localStorage.getItem("stats") || "{}");
+}
+function getCompleted() {
+  return JSON.parse(localStorage.getItem("completedMissions") || "[]");
+}
+function saveCompleted(data) {
+  localStorage.setItem("completedMissions", JSON.stringify(data));
+}
+
+function addItem(item) {
+  const inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+  inv.push({ name: item.name, icon: item.icon, desc: "Mission reward" });
+  localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function logEntry(msg) {
+  const logs = JSON.parse(localStorage.getItem("gameLog") || "[]");
+  logs.unshift({ time: new Date().toLocaleString(), message: msg });
+  localStorage.setItem("gameLog", JSON.stringify(logs));
+}
+
+function completeMission(id, reward) {
+  const stats = getStats();
+  const done = getCompleted();
+  if (done.includes(id)) return;
+
+  stats.xp = (stats.xp || 0) + (reward.xp || 0);
+  stats.rep = (stats.rep || 0) + (reward.rep || 0);
+  stats.cash = (stats.cash || 0) + (reward.cash || 0);
+
+  localStorage.setItem("stats", JSON.stringify(stats));
+  localStorage.setItem("statsUpdated", Date.now());
+  if (reward.item) addItem(reward.item);
+  done.push(id);
+  saveCompleted(done);
+
+  logEntry(`Completed ${id}: Gained ${reward.xp} XP, ${reward.rep} REP, $${reward.cash}` + (reward.item ? `, ${reward.item.icon} ${reward.item.name}` : ""));
+  renderMissions();
+}
+
+function renderMissions() {
+  const npc = document.getElementById("npcSelector").value;
+  const missions = missionData[npc] || [];
+  const stats = getStats();
+  const completed = getCompleted();
+  const div = document.getElementById("missionList");
+  div.innerHTML = "";
+
+  missions.forEach(m => {
+    const isUnlocked = (stats.rep || 0) >= m.rep;
+    const done = completed.includes(m.id);
+    const block = document.createElement("div");
+    block.style = "background:#1a1a1a;padding:10px;margin-bottom:12px;border-radius:8px;";
+    block.innerHTML = `<strong>${m.title}</strong><br><em>${m.desc}</em><br><small>${m.dialog}</small><br><br>`;
+
+    if (!isUnlocked) {
+      block.innerHTML += `<span style='color:#888;'>Requires REP ${m.rep}</span>`;
+    } else if (done) {
+      block.innerHTML += `<span style='color:#aaa;'>Completed</span>`;
+    } else if (m.branch) {
+      block.innerHTML += `
+        <button onclick="completeMission('${m.id}', missionData['${npc}'].find(x=>x.id==='${m.id}').rewards.loyal)" style="margin-right:8px;">Loyal</button>
+        <button onclick="completeMission('${m.id}', missionData['${npc}'].find(x=>x.id==='${m.id}').rewards.betray)">Betray</button>
+      `;
+    } else {
+      block.innerHTML += `<button onclick="completeMission('${m.id}', missionData['${npc}'].find(x=>x.id==='${m.id}').rewards)">Complete</button>`;
+    }
+
+    div.appendChild(block);
+  });
+}
+
+document.addEventListener("DOMContentLoaded", renderMissions);
+</script>
