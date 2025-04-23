@@ -1,0 +1,436 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Maya - Interactive Missions</title>
+  <style>
+    body { background: #101010; color: #fff; font-family: sans-serif; padding: 20px; }
+    .mission-card {
+      background: #1a1a1a;
+      padding: 14px;
+      margin-bottom: 16px;
+      border-radius: 10px;
+    }
+    button {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      margin: 5px 6px 0 0;
+      background: #66f;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Missions (with Player Choices)</h2>
+  <select id="npcSelector" onchange="renderMissions()" style="width:100%;margin-bottom:20px;background:#1a1a1a;color:#fff;">
+    <option value="maya">Maya</option>
+    <option value="rico">Rico</option>
+    <option value="blaze">Blaze</option>
+    <option value="skye">Skye</option>
+  </select>
+  <div id="missionList"></div>
+
+  <script>
+    const missionData = {
+  "maya": [
+    {
+      "id": "maya1",
+      "title": "Night Drop",
+      "rep": 0,
+      "desc": "Deliver a bag before curfew.",
+      "dialog": "You wanna eat, you hustle. This drop\u2019s easy \u2014 don\u2019t screw it up.",
+      "rewards": {
+        "xp": 6,
+        "rep": 4,
+        "cash": 40,
+        "item": {
+          "name": "LSD",
+          "icon": "\ud83d\udd2e"
+        }
+      }
+    },
+    {
+      "id": "maya2",
+      "title": "Tainted Package",
+      "rep": 4,
+      "desc": "Defuse a bad deal or bribe a client.",
+      "dialog": "I didn\u2019t cut it, I swear. Someone\u2019s playing with my stash.",
+      "rewards": {
+        "xp": 8,
+        "rep": 6,
+        "cash": 60,
+        "item": {
+          "name": "Adderall",
+          "icon": "\ud83d\udc8a"
+        }
+      }
+    },
+    {
+      "id": "maya3",
+      "title": "Courier Loyalty",
+      "rep": 10,
+      "desc": "Choose to defend Maya or tip off her rival.",
+      "dialog": "They\u2019re stepping on my turf. I need to know you\u2019re down.",
+      "rewards": {
+        "loyal": {
+          "xp": 10,
+          "rep": 8,
+          "cash": 100,
+          "perk": "Courier Loyalty"
+        },
+        "betray": {
+          "xp": 10,
+          "rep": -10,
+          "cash": 80,
+          "unlock": "Rival Contact"
+        }
+      },
+      "branch": true
+    },
+    {
+      "id": "maya4",
+      "title": "Courier\u2019s Endgame",
+      "rep": 16,
+      "desc": "Final drug route \u2014 survive the risk or lose the supply.",
+      "dialog": "This last run? It\u2019s all or nothing. Cops, rivals, bad roads.",
+      "rewards": {
+        "xp": 15,
+        "rep": 10,
+        "cash": 150,
+        "unlock": "Courier Tier 2 Gear"
+      }
+    },
+    {
+      "id": "maya5",
+      "title": "Risky Pickup",
+      "rep": 8,
+      "desc": "A package was dropped off in hostile territory. Choose how to retrieve it.",
+      "dialog": "Look, it\u2019s hot out there. You wanna risk it, be my guest. Just don\u2019t bring heat to me.",
+      "interactive": true
+    }
+  ],
+  "rico": [
+    {
+      "id": "rico1",
+      "title": "Protect Turf",
+      "rep": 0,
+      "desc": "Guard Maya\u2019s street corner from a rival threat.",
+      "dialog": "If you wanna hang around, prove you're not soft. Handle it.",
+      "rewards": {
+        "xp": 6,
+        "rep": 5,
+        "cash": 40,
+        "item": {
+          "name": "Street Armor",
+          "icon": "\ud83e\uddba"
+        }
+      }
+    },
+    {
+      "id": "rico2",
+      "title": "Intercept Deal",
+      "rep": 5,
+      "desc": "Bust up a back-alley exchange before it finishes.",
+      "dialog": "They\u2019re moving weight through our turf. Stop them, clean.",
+      "rewards": {
+        "xp": 8,
+        "rep": 7,
+        "cash": 70,
+        "item": {
+          "name": "Intel Packet",
+          "icon": "\ud83d\udce6"
+        }
+      }
+    },
+    {
+      "id": "rico3",
+      "title": "Warpath Choice",
+      "rep": 12,
+      "desc": "Rico's ready to go full lethal. You in?",
+      "dialog": "We end this. But I need to know if you\u2019re riding or pulling back.",
+      "rewards": {
+        "loyal": {
+          "xp": 12,
+          "rep": 10,
+          "cash": 120,
+          "perk": "Reduced Heat on Missions"
+        },
+        "betray": {
+          "xp": 10,
+          "rep": -12,
+          "cash": 100,
+          "unlock": "Enemy Faction Unlock"
+        }
+      },
+      "branch": true
+    },
+    {
+      "id": "rico4",
+      "title": "Enforcer\u2019s Reckoning",
+      "rep": 18,
+      "desc": "Rico's being hunted. Help him escape or turn him in.",
+      "dialog": "They got me in their sights. You trust me? Or you switching sides?",
+      "rewards": {
+        "loyal": {
+          "xp": 15,
+          "rep": 12,
+          "cash": 150,
+          "unlock": "Heat Cooldown Passive"
+        },
+        "betray": {
+          "xp": 15,
+          "rep": -15,
+          "cash": 180,
+          "perk": "Police Ally Triggered"
+        }
+      },
+      "branch": true
+    }
+  ],
+  "blaze": [
+    {
+      "id": "blaze1",
+      "title": "Test Sample",
+      "rep": 0,
+      "desc": "Try Blaze\u2019s new experimental strain and report the effects.",
+      "dialog": "You trust me, right? Hit this. Tell me what you feel.",
+      "rewards": {
+        "xp": 6,
+        "rep": 5,
+        "cash": 30,
+        "item": {
+          "name": "Chem Token",
+          "icon": "\ud83e\uddea"
+        }
+      }
+    },
+    {
+      "id": "blaze2",
+      "title": "Formula Delivery",
+      "rep": 5,
+      "desc": "Smuggle a volatile formula base to the growhouse.",
+      "dialog": "This stuff\u2019s unstable. Don\u2019t let it shake or spill.",
+      "rewards": {
+        "xp": 8,
+        "rep": 7,
+        "cash": 60,
+        "item": {
+          "name": "Active Agent",
+          "icon": "\ud83d\udc89"
+        }
+      }
+    },
+    {
+      "id": "blaze3",
+      "title": "Failed Batch Crisis",
+      "rep": 12,
+      "desc": "The lab exploded. Lie or fix the damage before Blaze is blamed.",
+      "dialog": "Boom. Nobody died. But cleanup\u2019s on us.",
+      "rewards": {
+        "loyal": {
+          "xp": 10,
+          "rep": 8,
+          "cash": 100,
+          "unlock": "Crafting Tier 2"
+        },
+        "betray": {
+          "xp": 10,
+          "rep": -10,
+          "cash": 90,
+          "perk": "Police Favor Token"
+        }
+      },
+      "branch": true
+    },
+    {
+      "id": "blaze4",
+      "title": "The Hybrid Path",
+      "rep": 18,
+      "desc": "Help Blaze finish the genetic fusion strain or sell it to a buyer.",
+      "dialog": "It\u2019s ready. Half plant, half perfection. Question is \u2014 who gets it?",
+      "rewards": {
+        "loyal": {
+          "xp": 15,
+          "rep": 10,
+          "cash": 130,
+          "unlock": "Mutant Craft Line"
+        },
+        "betray": {
+          "xp": 15,
+          "rep": -15,
+          "cash": 160,
+          "perk": "Exclusive Buyer Deal"
+        }
+      },
+      "branch": true
+    }
+  ],
+  "skye": [
+    {
+      "id": "skye1",
+      "title": "Secure VIP Client",
+      "rep": 0,
+      "desc": "Deliver a microdose + aesthetic booster kit to a luxury lounge.",
+      "dialog": "Keep your mouth shut and your shoes clean. They tip in thousands or stab in silence.",
+      "rewards": {
+        "xp": 6,
+        "rep": 4,
+        "cash": 50,
+        "item": {
+          "name": "Boost Kit",
+          "icon": "\u2728"
+        }
+      }
+    },
+    {
+      "id": "skye2",
+      "title": "Influencer Supply",
+      "rep": 6,
+      "desc": "Deliver curated drops to Skye\u2019s influencer network. Appearance matters.",
+      "dialog": "They don't want dealers. They want aesthetic experiences. You got the vibe?",
+      "rewards": {
+        "xp": 10,
+        "rep": 6,
+        "cash": 100,
+        "item": {
+          "name": "Image Enhancer",
+          "icon": "\ud83d\udc84"
+        }
+      }
+    },
+    {
+      "id": "skye3",
+      "title": "Gala Delivery",
+      "rep": 12,
+      "desc": "Deliver during a masquerade gala. Blend in or risk exposure.",
+      "dialog": "Blend in, stay quiet, and don\u2019t drink the punch unless you want to forget the deal.",
+      "rewards": {
+        "xp": 12,
+        "rep": 8,
+        "cash": 120,
+        "item": {
+          "name": "Designer Serum",
+          "icon": "\ud83d\udc57"
+        }
+      }
+    },
+    {
+      "id": "skye4",
+      "title": "Loyalty or Leverage",
+      "rep": 18,
+      "desc": "Decide whether to protect or blackmail a corrupt client.",
+      "dialog": "Your move: loyalty buys protection, blackmail buys leverage.",
+      "rewards": {
+        "loyal": {
+          "xp": 15,
+          "rep": 12,
+          "cash": 150,
+          "unlock": "Prestige Store Access"
+        },
+        "betray": {
+          "xp": 15,
+          "rep": -12,
+          "cash": 180,
+          "perk": "Market Exploit Perk"
+        }
+      },
+      "branch": true
+    }
+  ]
+};
+
+    function getStats() {
+      return JSON.parse(localStorage.getItem("stats") || "{}");
+    }
+    function getCompleted() {
+      return JSON.parse(localStorage.getItem("completedMissions") || "[]");
+    }
+    function saveCompleted(data) {
+      localStorage.setItem("completedMissions", JSON.stringify(data));
+    }
+    function updateStats(xp, rep, cash, heat = 0) {
+      const stats = getStats();
+      stats.xp = (stats.xp || 0) + xp;
+      stats.rep = (stats.rep || 0) + rep;
+      stats.cash = (stats.cash || 0) + cash;
+      stats.heat = (stats.heat || 0) + heat;
+      localStorage.setItem("stats", JSON.stringify(stats));
+      localStorage.setItem("statsUpdated", Date.now());
+    }
+    function log(msg) {
+      const logs = JSON.parse(localStorage.getItem("gameLog") || "[]");
+      logs.unshift({ time: new Date().toLocaleString(), message: msg });
+      localStorage.setItem("gameLog", JSON.stringify(logs));
+    }
+    function finishMission(npc, id, xp, rep, cash, heat = 0) {
+      updateStats(xp, rep, cash, heat);
+      const done = getCompleted();
+      done.push(id);
+      saveCompleted(done);
+      log(`Completed ${id}: +${xp} XP, +${rep} REP, $${cash}, Heat +${heat}`);
+      renderMissions();
+    }
+
+    function riskyPickupChoice(option) {
+      const rep = getStats().rep || 0;
+      const inv = JSON.parse(localStorage.getItem("inventory") || "[]").map(i => i.name);
+      if (option === 'bribe') {
+        finishMission('maya', 'maya5', 4, 3, -30, 0);
+        log("You bribed the lookout. Package secured.");
+      } else if (option === 'sneak') {
+        if (Math.random() > 0.5) {
+          finishMission('maya', 'maya5', 6, 4, 40, 2);
+        } else {
+          updateStats(0, -2, 0, 5);
+          log("Caught sneaking! Heat increased. Mission failed.");
+        }
+      } else if (option === 'fight') {
+        if (rep >= 10 && inv.includes("Knife")) {
+          finishMission('maya', 'maya5', 8, 5, 50, 3);
+        } else {
+          updateStats(0, -3, 0, 6);
+          log("You lost the fight. Mission failed. Heat increased.");
+        }
+      }
+    }
+
+    function renderMissions() {
+      const npc = document.getElementById("npcSelector").value;
+      const missions = missionData[npc] || [];
+      const stats = getStats();
+      const completed = getCompleted();
+      const div = document.getElementById("missionList");
+      div.innerHTML = "";
+
+      missions.forEach(m => {
+        const isUnlocked = (stats.rep || 0) >= m.rep;
+        const done = completed.includes(m.id);
+        const card = document.createElement("div");
+        card.className = "mission-card";
+        card.innerHTML = `<strong>${m.title}</strong><br><em>${m.desc}</em><br><small>${m.dialog}</small><br><br>`;
+
+        if (!isUnlocked) {
+          card.innerHTML += `<span style='color:#888;'>Requires REP ${m.rep}</span>`;
+        } else if (done) {
+          card.innerHTML += `<span style='color:#aaa;'>Completed</span>`;
+        } else if (m.interactive) {
+          card.innerHTML += `
+            <button onclick="riskyPickupChoice('bribe')">Bribe ($30)</button>
+            <button onclick="riskyPickupChoice('sneak')">Sneak (50% risk)</button>
+            <button onclick="riskyPickupChoice('fight')">Fight (REP 10 + Knife)</button>
+          `;
+        } else {
+          const r = m.rewards;
+          card.innerHTML += `<button onclick="finishMission('${npc}', '${m.id}', r.xp, r.rep, r.cash)">Complete</button>`;
+        }
+        div.appendChild(card);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", renderMissions);
+  </script>
+</body>
+</html>
