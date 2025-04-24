@@ -1,0 +1,1 @@
+// npc-v2.0.js - Full working version with inventory, mood, auto-sell, buy, give, level-ups
