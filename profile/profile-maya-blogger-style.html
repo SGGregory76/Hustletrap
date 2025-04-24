@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Maya - Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #0d0d0d;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .profile-container {
+      max-width: 380px;
+      margin: auto;
+    }
+
+    .card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 18px;
+      border-bottom: 1px solid #333;
+      padding-bottom: 8px;
+    }
+
+    .section {
+      margin-top: 12px;
+    }
+
+    .item-slot {
+      background: #262626;
+      border: 1px solid #333;
+      padding: 6px 8px;
+      margin-bottom: 6px;
+      border-radius: 6px;
+    }
+
+    .button {
+      display: inline-block;
+      background: #333;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      margin-top: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    select {
+      background: #222;
+      color: white;
+      border: 1px solid #333;
+      border-radius: 6px;
+      padding: 6px;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    .mission {
+      margin-top: 8px;
+      background: #222;
+      padding: 8px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="profile-container">
+  <div class="card">
+    <h3>Maya - Courier</h3>
+    <p><strong>Mood:</strong> <span id="moodText">Loading...</span></p>
+    <p><strong>On Drug:</strong> <span id="drugEffect">None</span></p>
+  </div>
+
+  <div class="card">
+    <h3>Inventory</h3>
+    <div id="npcInventory" class="section"></div>
+  </div>
+
+  <div class="card">
+    <h3>Storage</h3>
+    <div id="npcStorage" class="section"><em>Empty</em></div>
+  </div>
+
+  <div class="card">
+    <h3>Give Item</h3>
+    <select id="giveSelect"></select>
+    <button class="button" onclick="giveDrug('maya')">Give</button>
+  </div>
+
+  <div class="card">
+    <h3>Missions</h3>
+    <div id="missionList"></div>
+  </div>
+</div>
+
+<script src="https://sggregory76.github.io/Hustletrap/lib/stats-init.js"></script>
+<script src="https://sggregory76.github.io/Hustletrap/lib/npc.js"></script>
+<script>
+// Placeholder - dynamic behavior for mood, inventory, missions, etc. gets patched via npc.js
+document.getElementById('moodText').textContent = "Chilled";
+document.getElementById('drugEffect').textContent = "Marijuana";
+
+document.getElementById('npcInventory').innerHTML = `
+  <div class="item-slot">🌿 Marijuana</div>
+  <div class="item-slot">💊 Adderall</div>
+`;
+
+document.getElementById('npcStorage').innerHTML = `
+  <div class="item-slot">🔮 LSD (Given)</div>
+`;
+
+document.getElementById('missionList').innerHTML = `
+  <div class="mission"><strong>Night Drop</strong><br>Reward: 🔮 LSD<br>Status: Complete</div>
+  <div class="mission"><strong>Extended Route</strong><br>Reward: 💊 Adderall<br>Status: Available</div>
+`;
+</script>
+</body>
+</html>
