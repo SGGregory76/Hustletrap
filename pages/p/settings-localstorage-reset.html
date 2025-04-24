@@ -1,0 +1,72 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Game Settings</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #0d0d0d; color: #fff; font-family: sans-serif; padding: 20px; }
+    .container { max-width: 400px; margin: auto; }
+    h2 { text-align: center; }
+    button, textarea, input {
+      width: 100%; margin-top: 10px; padding: 10px; border: none;
+      border-radius: 6px; font-size: 14px;
+    }
+    button { background: #333; color: #fff; }
+    button:hover { background: #444; }
+    textarea, input { background: #1a1a1a; color: #66f; resize: vertical; }
+    .info { font-size: 13px; margin-top: 8px; color: #aaa; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Game Settings</h2>
+
+  <button onclick="resetGame()">Reset Game</button>
+  <div class="info">Clears all progress and inventory.</div>
+
+  <button onclick="exportSave()">Export Save</button>
+  <textarea id="saveData" rows="4" placeholder="Your save code will appear here..."></textarea>
+
+  <button onclick="importSave()">Import Save</button>
+  <input type="text" id="importData" placeholder="Paste your save code here" />
+</div>
+
+<script>
+function resetGame() {
+  const keys = Object.keys(localStorage);
+  const keep = ["theme", "layout"];
+  keys.forEach(k => { if (!keep.includes(k)) localStorage.removeItem(k); });
+  localStorage.setItem("gameReset", Date.now());
+  localStorage.setItem("stats", JSON.stringify({ xp: 0, rep: 0, cash: 0, heat: 0, level: 1 }));
+  alert("Game progress reset.");
+}
+
+function exportSave() {
+  const save = {};
+  for (const key in localStorage) {
+    if (localStorage.hasOwnProperty(key) && key !== "theme" && key !== "layout") {
+      save[key] = localStorage.getItem(key);
+    }
+  }
+  const json = JSON.stringify(save);
+  const encoded = btoa(json);
+  document.getElementById("saveData").value = encoded;
+}
+
+function importSave() {
+  const input = document.getElementById("importData").value.trim();
+  try {
+    const decoded = atob(input);
+    const save = JSON.parse(decoded);
+    for (const key in save) {
+      localStorage.setItem(key, save[key]);
+    }
+    alert("Save loaded! Reload the page to apply changes.");
+  } catch (e) {
+    alert("Invalid save data.");
+  }
+}
+</script>
+</body>
+</html>
