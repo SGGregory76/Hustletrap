@@ -1,0 +1,53 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Maya Inventory Debug</title>
+  <style>
+    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; }
+    .inventory-slot {
+      background: #1a1a1a;
+      padding: 10px;
+      margin-bottom: 8px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .used { color: #ffcc00; font-style: italic; }
+    button {
+      background: #66f;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 5px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Maya (Debug View)</h2>
+  <p><strong>Current Mood:</strong> <span id="moodText">Neutral</span></p>
+  <p><strong>Currently on Drug:</strong> <span id="drugEffect">None</span></p>
+
+  <h3>Inventory</h3>
+  <div id="npcInventory"></div>
+
+  <h4>Give Drug</h4>
+  <select id="giveSelect" style="width:100%;margin-bottom:10px;"></select>
+  <button onclick="giveDrug('maya')">Give</button>
+
+  <p id="logMsg" style="margin-top:15px;color:#ffe600;"></p>
+
+  <script src="https://sggregory76.github.io/Hustletrap/lib/npc.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      initNPC("maya", [
+        { name: "LSD", icon: "🔮", qty: 1, price: 60, type: "drug" },
+        { name: "Glass Flask", icon: "⚗️", qty: 1, price: 20, type: "resource" },
+        null, null, null
+      ], false); // doesn't allow selling resources
+    });
+  </script>
+</body>
+</html>
