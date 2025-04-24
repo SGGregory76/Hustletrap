@@ -1,0 +1,95 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Activity Log</title>
+  <style>
+    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; }
+    .log-entry {
+      background: #1b1b1b;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+    .log-entry strong {
+      color: #66f;
+    }
+    .log-entry time {
+      color: #aaa;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Activity Log</h2>
+  <div id="logList"></div>
+
+  <script>
+    function displayLog() {
+      const logs = JSON.parse(localStorage.getItem("gameLog") || "[]");
+      const container = document.getElementById("logList");
+
+      if (!logs.length) {
+        container.innerHTML = "<p style='text-align:center;color:#888;'>No log entries yet.</p>";
+        return;
+      }
+
+      container.innerHTML = logs.map(entry => `
+        <div class="log-entry">
+          <time>[${entry.time}]</time><br>
+          <strong>${entry.message}</strong>
+        </div>
+      `).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", displayLog);
+  </script>
+</body>
+</html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Activity Log</title>
+  <style>
+    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; }
+    .log-entry {
+      background: #1b1b1b;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+    }
+    .log-entry strong {
+      color: #66f;
+    }
+    .log-entry time {
+      color: #aaa;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Activity Log</h2>
+  <div id="logList"></div>
+
+  <script>
+    function displayLog() {
+      const logs = JSON.parse(localStorage.getItem("gameLog") || "[]");
+      const container = document.getElementById("logList");
+
+      if (!logs.length) {
+        container.innerHTML = "<p style='text-align:center;color:#888;'>No log entries yet.</p>";
+        return;
+      }
+
+      container.innerHTML = logs.map(entry => `
+        <div class="log-entry">
+          <time>[${entry.time}]</time><br>
+          <strong>${entry.message}</strong>
+        </div>
+      `).join("");
+    }
+
+    document.addEventListener("DOMContentLoaded", displayLog);
+  </script>
+</body>
+</html>
