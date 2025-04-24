@@ -1,1 +1,0 @@
-// Placeholder to ensure npc.js content is retained after state reset
