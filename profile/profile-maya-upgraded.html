@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Maya - Profile</title>
+  <script src="https://sggregory76.github.io/Hustletrap/lib/stats-init.js"></script>
+  <script src="https://sggregory76.github.io/Hustletrap/lib/npc.js"></script>
+  <style>
+    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; }
+    .section { background: #1a1a1a; border-radius: 10px; padding: 15px; margin-bottom: 20px; }
+    .inventory-slot, .storage-slot { padding: 6px 0; border-bottom: 1px solid #333; }
+    button { background: #333; color: white; padding: 6px 10px; border: none; border-radius: 6px; cursor: pointer; margin-top: 6px; }
+    h3 { margin-top: 0; }
+  </style>
+</head>
+<body>
+  <h2>Maya</h2>
+  <p><strong>Role:</strong> Courier</p>
+  <p><strong>Mood:</strong> <span id="moodText">Loading...</span></p>
+  <p><strong>On Drug:</strong> <span id="drugEffect">None</span></p>
+
+  <div class="section">
+    <h3>Inventory</h3>
+    <div id="npcInventory"></div>
+  </div>
+
+  <div class="section">
+    <h3>Storage</h3>
+    <div id="npcStorage"></div>
+  </div>
+
+  <div class="section">
+    <h3>Give Item</h3>
+    <select id="giveSelect"></select><br>
+    <button onclick="giveDrug('maya')">Give to Maya</button>
+  </div>
+
+  <div class="section">
+    <h3>Missions</h3>
+    <div id="missionList"></div>
+  </div>
+
+  <script>
+    const npcId = "maya";
+
+    const mayaMissions = [
+      { id: "maya1", title: "Night Drop", desc: "Simple late-night courier run.", icon: "🔮", reward: "LSD", xp: 5, rep: 3, reqRep: 0 },
+      { id: "maya2", title: "Extended Route", desc: "Long delivery across blocks.", icon: "💊", reward: "Adderall", xp: 6, rep: 4, reqRep: 5 },
+      { id: "maya3", title: "High-Risk Pickup", desc: "Cops are watching. Bribe or run?", icon: "💉", reward: "Oxytocin", xp: 8, rep: 5, reqRep: 12, choice: true },
+      { id: "maya4", title: "Undercover Deal", desc: "Deal with rival buyer.", icon: "🕵️", reward: "Flag", xp: 10, rep: 6, reqRep: 14, needs: "maya3" },
+      { id: "maya5", title: "Promotion or Parting", desc: "Choose Maya’s future.", icon: "⭐", reward: "Perk", xp: 12, rep: 8, reqRep: 16, needs: "maya4" }
+    ];
+
+    function getCompleted() {
+      return JSON.parse(localStorage.getItem("completedMissions") || "[]");
+    }
+
+    function saveCompleted(list) {
+      localStorage.setItem("completedMissions", JSON.stringify(list));
+    }
+
+    function completeMission(index, choice = null) {
+      const m = mayaMissions[index];
+      const stats = JSON.parse(localStorage.getItem("stats") || "{}");
+      const completed = getCompleted();
+
+      if (completed.includes(m.id)) return;
+
+      stats.xp = stats.xp || 0;
+      stats.rep = stats.rep || 0;
+      stats.cash = stats.cash || 0;
+      stats.heat = stats.heat || 0;
+
+      stats.xp += m.xp;
+      stats.rep += m.rep;
+
+      if (m.id === "maya3" && choice === "bribe") {
+        localStorage.setItem("perk_loyal_delivery", "true");
+        stats.cash -= 25;
+      } else if (m.id === "maya3" && choice === "run") {
+        stats.heat += 2;
+      } else if (m.id === "maya4") {
+        localStorage.setItem("flag_undercover_complete", "true");
+      } else if (m.id === "maya5") {
+        if (choice === "crew") {
+          localStorage.setItem("perk_maya_loyalist", "true");
+        }
+      }
+
+      completed.push(m.id);
+      saveCompleted(completed);
+      localStorage.setItem("stats", JSON.stringify(stats));
+      localStorage.setItem("statsUpdated", Date.now());
+      renderMissions();
+    }
+
+    function renderMissions() {
+      const stats = JSON.parse(localStorage.getItem("stats") || "{}");
+      const completed = getCompleted();
+      const div = document.getElementById("missionList");
+
+      div.innerHTML = mayaMissions.map((m, i) => {
+        const isUnlocked = (stats.rep || 0) >= m.reqRep;
+        const done = completed.includes(m.id);
+        const requires = m.needs && !completed.includes(m.needs);
+        if (requires) return "";
+
+        let btn = "";
+        if (!isUnlocked) {
+          btn = `<em>Requires REP ${m.reqRep}</em>`;
+        } else if (done) {
+          btn = `<span style='color:#888;'>Completed</span>`;
+        } else if (m.choice && m.id === "maya3") {
+          btn = `<button onclick="completeMission(${i}, 'bribe')">Bribe ($25)</button>
+                 <button onclick="completeMission(${i}, 'run')">Run</button>`;
+        } else if (m.id === "maya5") {
+          btn = `<button onclick="completeMission(${i}, 'crew')">Keep Maya</button>
+                 <button onclick="completeMission(${i}, 'cut')">Cut Ties</button>`;
+        } else {
+          btn = `<button onclick="completeMission(${i})">Complete</button>`;
+        }
+
+        return `<div class='mission'>
+                  <strong>${m.title}</strong><br>
+                  ${m.desc}<br>
+                  <small>XP: ${m.xp}, REP: ${m.rep}</small><br>
+                  ${btn}
+                </div>`;
+      }).join("");
+    }
+
+    function renderStorage() {
+      const storage = JSON.parse(localStorage.getItem(npcId + "_storage") || "[]");
+      const div = document.getElementById("npcStorage");
+      if (storage.length === 0) {
+        div.innerHTML = "<em>Empty</em>";
+        return;
+      }
+      div.innerHTML = storage.map(i => `<div class='storage-slot'>${i.icon} ${i.name}</div>`).join("");
+    }
+
+    function patchStorage(name, icon) {
+      const store = JSON.parse(localStorage.getItem(npcId + "_storage") || "[]");
+      store.push({ name, icon });
+      localStorage.setItem(npcId + "_storage", JSON.stringify(store));
+    }
+
+    function giveDrug(npcId) {
+      const selected = document.getElementById("giveSelect").value;
+      if (!selected) return;
+      const [name, icon] = selected.split("|");
+      let inv = JSON.parse(localStorage.getItem("inventory") || "[]");
+      const index = inv.findIndex(item => item.name === name);
+      if (index !== -1) {
+        inv.splice(index, 1);
+        localStorage.setItem("inventory", JSON.stringify(inv));
+        patchStorage(name, icon);
+        renderStorage();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initNPC(npcId, [{ name: "LSD", icon: "🔮", qty: 1, price: 25, type: "drug" }]);
+      renderStorage();
+      renderMissions();
+    });
+  </script>
+</body>
+</html>
