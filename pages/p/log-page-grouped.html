@@ -1,0 +1,87 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Activity Log</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #101010; color: white; font-family: 'Segoe UI', sans-serif; padding: 20px; margin: 0; }
+    .container { max-width: 400px; margin: auto; }
+    h3 { text-align: center; margin-bottom: 10px; }
+    .filter { text-align: center; margin-bottom: 15px; }
+    select { padding: 6px; border-radius: 6px; border: none; background: #222; color: #fff; }
+    .log-entry {
+      background: #1a1a1a; padding: 10px; margin-bottom: 10px; border-radius: 6px;
+    }
+    .log-entry strong { display: block; margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h3>Activity Log</h3>
+  <div class="filter">
+    <label for="filterSelect">Filter:&nbsp;</label>
+    <select id="filterSelect">
+      <option value="All">All</option>
+      <option value="Missions">Missions</option>
+      <option value="Trades">Trades</option>
+      <option value="Loans">Loans</option>
+    </select>
+  </div>
+  <div id="logEntries"></div>
+</div>
+
+<b:if cond='true'>
+<script>
+  function getLog() {
+    return JSON.parse(localStorage.getItem("gameLog") || "[]");
+  }
+
+  function matchesFilter(message, filter) {
+    if (filter === "All") return true;
+    if (filter === "Missions") return /mission/i.test(message);
+    if (filter === "Trades") return /(sold|bought|used)/i.test(message);
+    if (filter === "Loans") return /loan/i.test(message);
+    return true;
+  }
+
+  function renderLog() {
+    const logs = getLog();
+    const filter = document.getElementById("filterSelect").value;
+    
+    const grouped = {};
+    logs.forEach(log => {
+      const date = new Date(log.time).toLocaleDateString();
+      if (!grouped[date]) grouped[date] = [];
+      if (matchesFilter(log.message, filter)) grouped[date].push(log);
+    });
+
+    const entries = Object.keys(grouped).map(date => {
+      const items = grouped[date].map(log =>
+        `<div class="log-entry">
+          <strong>[${new Date(log.time).toLocaleTimeString()}]</strong>
+          ${log.message}
+        </div>`).join("");
+      return `<h4 style='margin:15px 0 5px;border-bottom:1px solid #333;'>${date}</h4>` + items;
+    }).join("");
+                        .map(log => 
+      `<div class="log-entry">
+        <strong>[${log.time}]</strong>
+        ${log.message}
+      </div>`
+    ).join("");
+    document.getElementById("logEntries").innerHTML = entries || "<p style='text-align:center;color:#aaa;'>No log entries to display.</p>";
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("filterSelect").addEventListener("change", renderLog);
+    renderLog();
+  });
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === "gameLog") renderLog();
+  });
+</script>
+</b:if>
+</body>
+</html>
