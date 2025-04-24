@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contacts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #0d0d0d; color: white; font-family: sans-serif; padding: 20px; margin: 0; }
+    .container { max-width: 400px; margin: auto; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .npc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    .npc-card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .npc-card:hover {
+      transform: scale(1.03);
+    }
+    .npc-card a {
+      color: #66f;
+      text-decoration: none;
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    .emoji {
+      font-size: 32px;
+      display: block;
+    }
+    .loyalty-bar {
+      height: 6px;
+      background: #333;
+      border-radius: 4px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .loyalty-fill {
+      height: 100%;
+      background: #4caf50;
+      transition: width 0.3s ease;
+    }
+    .npc-status {
+      font-size: 12px;
+      margin-top: 6px;
+      color: #ccc;
+    }
+    .perk {
+      font-size: 10px;
+      color: #0f0;
+      margin-top: 4px;
+    }
+    .rival .loyalty-fill {
+      background: #f33 !important;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Known Contacts</h2>
+  <div class="npc-grid">
+    <div class="npc-card" id="mayaCard">
+      <span class="emoji">💊</span>
+      <span>Maya</span>
+      <div class="loyalty-bar"><div id="mayaLoyalty" class="loyalty-fill" style="width:0%"></div></div>
+      <div class="npc-status" id="mayaStatus">...</div>
+      <a href="https://sggregory76.github.io/Hustletrap/profile/profile-maya-sales-fixed.html" target="_blank">Visit</a>
+    </div>
+    <div class="npc-card" id="ricoCard">
+      <span class="emoji">⚡</span>
+      <span>Rico</span>
+      <div class="loyalty-bar"><div id="ricoLoyalty" class="loyalty-fill" style="width:0%"></div></div>
+      <div class="npc-status" id="ricoStatus">...</div>
+      <a href="https://sggregory76.github.io/Hustletrap/profile/profile-rico.html" target="_blank">Visit</a>
+    </div>
+    <div class="npc-card" id="blazeCard">
+      <span class="emoji">🔥</span>
+      <span>Blaze</span>
+      <div class="loyalty-bar"><div id="blazeLoyalty" class="loyalty-fill" style="width:0%"></div></div>
+      <div class="npc-status" id="blazeStatus">...</div>
+      <a href="https://sggregory76.github.io/Hustletrap/profile/profile-blaze.html" target="_blank">Visit</a>
+    </div>
+    <div class="npc-card" id="skyeCard">
+      <span class="emoji">🌈</span>
+      <span>Skye</span>
+      <div class="loyalty-bar"><div id="skyeLoyalty" class="loyalty-fill" style="width:0%"></div></div>
+      <div class="npc-status" id="skyeStatus">...</div>
+      <a href="https://sggregory76.github.io/Hustletrap/profile/profile-skye.html" target="_blank">Visit</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const npcIds = ["maya", "rico", "blaze", "skye"];
+
+  function getTier(loyalty) {
+    if (loyalty >= 70) return { tier: "Trusted", color: "#4caf50", text: "Trusted Ally", perk: true };
+    if (loyalty >= 30) return { tier: "Neutral", color: "#ffa500", text: "Neutral" };
+    return { tier: "Rival", color: "#f33", text: "Suspicious", rival: true };
+  }
+
+  function updateLoyaltyDisplay() {
+    npcIds.forEach(id => {
+      const loyalty = parseInt(localStorage.getItem(id + "_loyalty") || "0");
+      const bar = document.getElementById(id + "Loyalty");
+      const status = document.getElementById(id + "Status");
+      const card = document.getElementById(id + "Card");
+
+      const tier = getTier(loyalty);
+      bar.style.width = Math.min(100, loyalty) + "%";
+      bar.style.background = tier.color;
+      status.innerHTML = `${tier.text} (${loyalty})` + (tier.perk ? "<div class='perk'>Perk Unlocked</div>" : "");
+      card.className = "npc-card" + (tier.rival ? " rival" : "");
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", updateLoyaltyDisplay);
+  window.addEventListener("storage", updateLoyaltyDisplay);
+</script>
+</body>
+</html>
