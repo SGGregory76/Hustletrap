@@ -1,3 +1,4 @@
+console.log("✅ MissionEngine loaded");
 // missionEngine.js (extended)
 
 // 1. Define a mission with mixed outcomes and a timer
