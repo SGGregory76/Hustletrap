@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blaze - Profile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; margin: 0; }
+    .container { max-width: 400px; margin: auto; }
+    h2, h4 { text-align: center; }
+    .slot-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .slot { background: #1a1a1a; padding: 10px; border-radius: 8px; text-align: center; min-height: 60px; }
+    button { background: #333; color: white; border: none; padding: 6px 10px; margin-top: 5px; border-radius: 6px; cursor: pointer; }
+    button:hover { background: #444; }
+    select { background: #222; color: white; border-radius: 6px; padding: 6px; width: 100%; margin-top: 10px; }
+    .buyback { margin-top: 20px; }
+  </style>
+  <script src="https://sggregory76.github.io/Hustletrap/global-logic-rp.js"></script>
+</head>
+<body>
+<div class="container">
+  <h2>Blaze</h2>
+  <h4>Role: Party Supplier</h4>
+
+  <div>
+    <strong>Mood:</strong> <span id="npcMood">Loading...</span><br>
+    <strong>On Drug:</strong> <span id="npcDrug">Loading...</span>
+  </div>
+
+  <div class="slot-grid" id="npcSlots"></div>
+
+  <h4>Give Blaze an Item</h4>
+  <select id="giveSelect"></select>
+  <button onclick="giveToNPC()">Give</button>
+
+  <div class="buyback">
+    <h4>Buy Back from Blaze</h4>
+    <select id="buySelect"></select>
+    <button onclick="buyBackFromNPC()">Buy Back</button>
+  </div>
+
+  <div id="resultMessage" style="margin-top:15px;text-align:center;color:yellow;"></div>
+</div>
+
+<script>
+let npcInventory = JSON.parse(localStorage.getItem("blazeInventory")) || [
+  { name: "Marijuana", icon: "🔥", type: "drug" }
+];
+
+let npcMood = "Lit";
+let npcDrug = "LSD";
+
+const drugValues = {
+  "Marijuana": 20, "Cocaine": 60, "LSD": 40, "Adderall": 30, "Oxytocin": 45,
+  "Unknown Compound": 35, "Speedball": 70, "Trip Serum": 65, "Nerve Blend": 50,
+  "Meth": 55, "Crack": 45, "Mutant Plant": 25, "Custom Weed Strain": 35,
+  "default": 30
+};
+
+function updateNPCMood() {
+  npcMood = ["Lit", "Paranoid", "Energetic", "Zoned Out"][Math.floor(Math.random()*4)];
+  npcDrug = ["LSD", "Marijuana", "Xanax", "Meth"][Math.floor(Math.random()*4)];
+  document.getElementById("npcMood").innerText = npcMood;
+  document.getElementById("npcDrug").innerText = npcDrug;
+}
+
+function saveInventory() {
+  localStorage.setItem("blazeInventory", JSON.stringify(npcInventory));
+}
+
+function renderInventory() {
+  const slots = document.getElementById("npcSlots");
+  slots.innerHTML = "";
+  for (let i = 0; i < 5; i++) {
+    let slot = npcInventory[i] ? npcInventory[i].icon + " " + npcInventory[i].name : "Empty Slot";
+    slots.innerHTML += `<div class="slot">${slot}</div>`;
+  }
+}
+
+function renderGiveSelect() {
+  const inv = JSON.parse(localStorage.getItem("inventory")) || [];
+  const give = document.getElementById("giveSelect");
+  give.innerHTML = inv.map((item, idx) => `<option value="${idx}">${item.icon || "❔"} ${item.name}</option>`).join("") || "<option disabled>No Items</option>";
+}
+
+function renderBuySelect() {
+  const buy = document.getElementById("buySelect");
+  buy.innerHTML = npcInventory.map((item, idx) => `<option value="${idx}">${item.icon || "❔"} ${item.name}</option>`).join("") || "<option disabled>No Items</option>";
+}
+
+function giveToNPC() {
+  const idx = document.getElementById("giveSelect").value;
+  if (idx === "" || idx == null) return;
+  let playerInv = JSON.parse(localStorage.getItem("inventory")) || [];
+  const item = playerInv.splice(idx, 1)[0];
+  if (!item) return;
+
+  if (npcInventory.length < 5) {
+    npcInventory.push({ name: item.name, icon: item.icon, type: "drug" });
+    localStorage.setItem("inventory", JSON.stringify(playerInv));
+    saveInventory();
+    renderInventory();
+    renderGiveSelect();
+    renderBuySelect();
+    logEntry(`Gave ${item.name} to Blaze.`);
+    document.getElementById("resultMessage").innerText = "Gave item successfully!";
+  } else {
+    document.getElementById("resultMessage").innerText = "No available slot!";
+  }
+}
+
+function buyBackFromNPC() {
+  const idx = document.getElementById("buySelect").value;
+  if (idx === "" || idx == null) return;
+  const item = npcInventory[idx];
+  const priceMultiplier = 0.9 + Math.random() * 0.4;
+  const price = Math.floor((drugValues[item.name] || drugValues["default"]) * priceMultiplier);
+  const stats = JSON.parse(localStorage.getItem("stats") || "{}");
+  if ((stats.cash || 0) < price) {
+    document.getElementById("resultMessage").innerText = "Not enough cash to buy this item!";
+    return;
+  }
+  npcInventory.splice(idx, 1);
+  updatePlayer("cash", -price);
+  const playerInv = JSON.parse(localStorage.getItem("inventory")) || [];
+  playerInv.push(item);
+  localStorage.setItem("inventory", JSON.stringify(playerInv));
+  saveInventory();
+  renderInventory();
+  renderGiveSelect();
+  renderBuySelect();
+  logEntry(`Bought back ${item.name} from Blaze for $${price}.`);
+  document.getElementById("resultMessage").innerText = `Bought for $${price}`;
+}
+
+function updatePlayer(stat, amount) {
+  const s = JSON.parse(localStorage.getItem("stats") || "{}");
+  s[stat] = (s[stat] || 0) + amount;
+  localStorage.setItem("stats", JSON.stringify(s));
+  localStorage.setItem("statsUpdated", Date.now());
+}
+
+function npcAutoSellOrUse() {
+  if (npcInventory.length === 0) return;
+  const idx = Math.floor(Math.random() * npcInventory.length);
+  const item = npcInventory[idx];
+  const value = drugValues[item.name] || drugValues["default"];
+
+  if (item.type === "drug") {
+    npcInventory.splice(idx, 1);
+    if (Math.random() < 0.7) {
+      logEntry(`Blaze sold ${item.name}.`);
+      updatePlayer("cash", value);
+      updatePlayer("heat", 1);
+      updatePlayer("rep", 1);
+      updatePlayer("xp", 2);
+      awardRPSale(item.name);
+    } else {
+      logEntry(`Blaze used ${item.name}.`);
+      updatePlayer("cash", value);
+      updatePlayer("heat", 1);
+      updatePlayer("rep", 1);
+      updatePlayer("xp", 2);
+      awardRPUse(item.name);
+    }
+    saveInventory();
+    renderInventory();
+    renderBuySelect();
+  }
+}
+
+function logEntry(message) {
+  const logs = JSON.parse(localStorage.getItem("gameLog") || []);
+  logs.unshift({ time: new Date().toLocaleString(), message });
+  localStorage.setItem("gameLog", JSON.stringify(logs));
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  updateNPCMood();
+  renderInventory();
+  renderGiveSelect();
+  renderBuySelect();
+  setInterval(npcAutoSellOrUse, 15000);
+});
+</script>
+</body>
+</html>
