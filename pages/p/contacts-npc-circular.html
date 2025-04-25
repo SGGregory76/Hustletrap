@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Contacts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #0d0d0d; color: white; font-family: sans-serif; margin: 0; padding: 20px; }
+    h2 { text-align: center; margin-bottom: 20px; }
+    .npc-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      max-width: 420px;
+      margin: auto;
+    }
+    .npc-card {
+      background: #1a1a1a;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 0 6px rgba(0,0,0,0.4);
+      transition: transform 0.2s;
+    }
+    .npc-card:hover {
+      transform: scale(1.03);
+    }
+    .npc-card a {
+      color: #66f;
+      text-decoration: none;
+      display: block;
+      margin-top: 8px;
+      font-weight: bold;
+    }
+    .emoji { font-size: 28px; background:#222; border-radius:50%; width:60px; height:60px; display:flex; align-items:center; justify-content:center; margin:auto; }
+    .npc-note, .npc-msg {
+      font-size: 13px;
+      color: #ccc;
+      margin-top: 6px;
+      min-height: 2em;
+    }
+    .npc-msg { font-style: italic; color: #88f; }
+  </style>
+</head>
+<body>
+<h2>Known Contacts</h2>
+<div class="npc-grid">
+  <div class="npc-card">
+    <div class="emoji">💊</div>
+    <span>Maya</span>
+    <a href="https://hustletrap.blogspot.com/p/profile-maya.html?m=1" target="_blank">Visit</a>
+    <div class="npc-note" id="note-maya">...</div>
+    <div class="npc-msg" id="msg-maya">...</div>
+  </div>
+  <div class="npc-card">
+    <div class="emoji">⚡</div>
+    <span>Rico</span>
+    <a href="https://hustletrap.blogspot.com/p/profile-rico.html?m=1" target="_blank">Visit</a>
+    <div class="npc-note" id="note-rico">...</div>
+    <div class="npc-msg" id="msg-rico">...</div>
+  </div>
+  <div class="npc-card">
+    <div class="emoji">🔥</div>
+    <span>Blaze</span>
+    <a href="https://hustletrap.blogspot.com/p/profile-blaze.html?m=1" target="_blank">Visit</a>
+    <div class="npc-note" id="note-blaze">...</div>
+    <div class="npc-msg" id="msg-blaze">...</div>
+  </div>
+  <div class="npc-card">
+    <div class="emoji">🌈</div>
+    <span>Skye</span>
+    <a href="https://hustletrap.blogspot.com/p/profile-skye.html?m=1" target="_blank">Visit</a>
+    <div class="npc-note" id="note-skye">...</div>
+    <div class="npc-msg" id="msg-skye">...</div>
+  </div>
+</div>
+
+<script>
+const npcMoods = {
+  Maya: localStorage.getItem("mayaMood") || "Unknown",
+  Rico: localStorage.getItem("ricoMood") || "Unknown",
+  Blaze: localStorage.getItem("blazeMood") || "Unknown",
+  Skye: localStorage.getItem("skyeMood") || "Unknown"
+};
+const npcDrugs = {
+  Maya: localStorage.getItem("mayaDrug") || "None",
+  Rico: localStorage.getItem("ricoDrug") || "None",
+  Blaze: localStorage.getItem("blazeDrug") || "None",
+  Skye: localStorage.getItem("skyeDrug") || "None"
+};
+const npcMsgs = {
+  Maya: "Got anything for me to move?",
+  Rico: "Keep your head down, the streets are hot.",
+  Blaze: "Party starts when the product drops.",
+  Skye: "I’ve been experimenting with some weird mixes..."
+};
+
+function updateContacts() {
+  for (const npc of ["maya", "rico", "blaze", "skye"]) {
+    const name = npc.charAt(0).toUpperCase() + npc.slice(1);
+    document.getElementById(`note-${npc}`).textContent = `${npcMoods[name]} on ${npcDrugs[name]}`;
+    document.getElementById(`msg-${npc}`).textContent = npcMsgs[name];
+  }
+}
+
+document.addEventListener("DOMContentLoaded", updateContacts);
+window.addEventListener("storage", updateContacts);
+</script>
+</body>
+</html>
