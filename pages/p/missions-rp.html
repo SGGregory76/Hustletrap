@@ -1,0 +1,149 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Missions</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; }
+    .mission-box {
+      background: #1a1a1a;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 10px;
+    }
+    h3, h4 { text-align: center; }
+    select, button {
+      background: #222;
+      color: white;
+      border: 1px solid #444;
+      padding: 6px;
+      border-radius: 6px;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #333;
+    }
+  </style>
+</head>
+<body>
+<h3>Available Missions</h3>
+<select id="npcSelect" onchange="renderNPC(this.value)">
+  <option value="0">Rico (Enforcer)</option>
+  <option value="1">Maya (Courier)</option>
+  <option value="2">Lex (Chemist)</option>
+</select>
+<div id="npcMissions"></div>
+
+<script>
+const npcs = [
+  {
+    name: "Rico",
+    missions: [
+      { id: "rico1", title: "Protect Turf", reward: { name: "Marijuana", icon: "🌿" }, xp: 5, rep: 4, unlockRep: 0 },
+      { id: "rico2", title: "Intercept Deal", reward: { name: "Cocaine", icon: "❄️" }, xp: 7, rep: 5, unlockRep: 10 }
+    ]
+  },
+  {
+    name: "Maya",
+    missions: [
+      { id: "maya1", title: "Night Drop", reward: { name: "LSD", icon: "🔮" }, xp: 6, rep: 4, unlockRep: 5 },
+      { id: "maya2", title: "Extended Route", reward: { name: "Adderall", icon: "💊" }, xp: 8, rep: 6, unlockRep: 12 }
+    ]
+  },
+  {
+    name: "Lex",
+    missions: [
+      { id: "lex1", title: "Test Sample", reward: { name: "Unknown Compound", icon: "🧪" }, xp: 5, rep: 5, unlockRep: 0 },
+      { id: "lex2", title: "Formula Delivery", reward: { name: "Oxytocin", icon: "💉" }, xp: 10, rep: 7, unlockRep: 10 }
+    ]
+  }
+];
+
+function getStats() {
+  const s = JSON.parse(localStorage.getItem("stats") || "{}");
+  return {
+    xp: s.xp || 0,
+    rep: s.rep || 0,
+    cash: s.cash || 0,
+    heat: s.heat || 0,
+    rp: s.rp || 0
+  };
+}
+
+function setStats(s) {
+  localStorage.setItem("stats", JSON.stringify(s));
+  localStorage.setItem("statsUpdated", Date.now());
+}
+
+function getCompleted() {
+  return JSON.parse(localStorage.getItem("completedMissions")) || [];
+}
+
+function saveCompleted(list) {
+  localStorage.setItem("completedMissions", JSON.stringify(list));
+}
+
+function addToInventory(name, icon) {
+  const inv = JSON.parse(localStorage.getItem("inventory")) || [];
+  inv.push({ name: name, icon: icon, desc: "Mission reward" });
+  localStorage.setItem("inventory", JSON.stringify(inv));
+}
+
+function logEntry(message) {
+  const logs = JSON.parse(localStorage.getItem("gameLog")) || [];
+  logs.unshift({ time: new Date().toLocaleString(), message });
+  localStorage.setItem("gameLog", JSON.stringify(logs));
+}
+
+function completeMission(npcIndex, missionIndex) {
+  const npc = npcs[npcIndex];
+  const mission = npc.missions[missionIndex];
+  const stats = getStats();
+  const completed = getCompleted();
+
+  if (completed.includes(mission.id)) return;
+
+  stats.xp += mission.xp;
+  stats.rep += mission.rep;
+  stats.rp += 2;
+
+  setStats(stats);
+  completed.push(mission.id);
+  saveCompleted(completed);
+
+  addToInventory(mission.reward.name, mission.reward.icon);
+  logEntry(`${npc.name}'s mission "${mission.title}" completed. Gained ${mission.reward.icon} ${mission.reward.name}, XP +${mission.xp}, REP +${mission.rep}, RP +2`);
+
+  renderNPC(npcIndex);
+}
+
+function renderNPC(index) {
+  const npc = npcs[index];
+  const stats = getStats();
+  const completed = getCompleted();
+  const div = document.getElementById("npcMissions");
+
+  let html = `<h4>${npc.name}'s Missions</h4>`;
+  npc.missions.forEach((m, i) => {
+    const isUnlocked = stats.rep >= m.unlockRep;
+    const done = completed.includes(m.id);
+    html += `
+      <div class="mission-box">
+        <strong>${m.title}</strong><br>
+        Reward: ${m.reward.icon} ${m.reward.name}<br>
+        XP: ${m.xp}, REP: ${m.rep}, RP: 2<br>
+        ${!isUnlocked ? `<em style='color:#aaa;'>Requires REP ${m.unlockRep}</em>` :
+        done ? `<span style='color:#888;'>Completed</span>` :
+        `<button onclick="completeMission(${index}, ${i})">Complete</button>`}
+      </div>`;
+  });
+
+  div.innerHTML = html;
+}
+
+document.addEventListener("DOMContentLoaded", () => renderNPC(0));
+</script>
+</body>
+</html>
