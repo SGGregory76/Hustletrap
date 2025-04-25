@@ -124,6 +124,10 @@ const MissionEngine = {
 
 // 3. Helper functions
 function renderSituation(m) {
+  const container = document.getElementById("mission-container");
+  // add this line:
+  container.setAttribute("data-mission", m.id);
+
   document.getElementById("mission-title").innerText = m.title;
   document.getElementById("mission-desc").innerHTML = m.description;
   const opts = document.getElementById("mission-options");
@@ -135,6 +139,7 @@ function renderSituation(m) {
     opts.appendChild(btn);
   });
 }
+
 
 function showOutcome(message, status) {
   const out = document.getElementById("mission-outcome");
