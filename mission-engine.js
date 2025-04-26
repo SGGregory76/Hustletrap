@@ -1,5 +1,12 @@
 console.log("✅ MissionEngine loaded");
 
+// Optional: map mission IDs to icon URLs
+const MissionIcons = {
+  "find-burner-os":      "https://yourcdn.com/icons/phone.svg",
+  "street-purity-test":  "https://yourcdn.com/icons/bag.svg",
+  "delivery-route-test": "https://yourcdn.com/icons/map.svg"
+};
+
 // 1. Define your missions
 const Missions = {
   "find-burner-os": {
@@ -99,7 +106,7 @@ const MissionEngine = {
 
     switch (choice.outcome) {
       case "success": onSuccess(); break;
-      case "mixed":   onMixed();   break;
+      case "mixed":   onMixed   && onMixed(); break;
       default:          onFailure(); break;
     }
 
@@ -122,14 +129,30 @@ const MissionEngine = {
   }
 };
 
-// 3. Helper functions
+// 3. Rendering helpers with icons
 function renderSituation(m) {
   const container = document.getElementById("mission-container");
-  // add this line:
   container.setAttribute("data-mission", m.id);
 
-  document.getElementById("mission-title").innerText = m.title;
+  // Title with icon
+  const titleEl = document.getElementById("mission-title");
+  titleEl.innerHTML = ``;
+  const iconUrl = MissionIcons[m.id];
+  if (iconUrl) {
+    const img = document.createElement("img");
+    img.src = iconUrl;
+    img.style.width = "24px";
+    img.style.height = "24px";
+    img.style.verticalAlign = "middle";
+    img.style.marginRight = "8px";
+    titleEl.appendChild(img);
+  }
+  titleEl.appendChild(document.createTextNode(m.title));
+
+  // Description
   document.getElementById("mission-desc").innerHTML = m.description;
+
+  // Options
   const opts = document.getElementById("mission-options");
   opts.innerHTML = "";
   m.options.forEach(opt => {
@@ -140,7 +163,7 @@ function renderSituation(m) {
   });
 }
 
-
+// 4. Outcome display and stat updates
 function showOutcome(message, status) {
   const out = document.getElementById("mission-outcome");
   out.innerText = message;
