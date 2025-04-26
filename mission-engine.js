@@ -18,28 +18,32 @@ const OptionIcons = {
 };
 
 // 1. Define your missions
-const Missions = {
-  "find-burner-os": {
-    id: "find-burner-os",
-    title: "Something in the Alley",
-    description: `
-      You’re creeping down a dark backstreet when you spot a cracked smartphone half-buried in trash.
-      It looks battered but… it might still work.
-      What do you do?
-    `,
-    options: [
-      { key: "A", label: "Pick it up and power it on",   outcome: "success" },
-      { key: "B", label: "Leave it—you don’t want trouble", outcome: "failure" }
-    ],
-    onSuccess: () => {
-      showOutcome("The screen flickers alive… You’ve got your Burner OS!", "success");
-      setTimeout(() => MissionEngine.start("street-purity-test"), 2000);
-    },
-    onFailure: () => {
-      showOutcome("You walk on… but you’ll regret not grabbing that.", "failure");
-      setTimeout(() => MissionEngine.start("find-burner-os"), 3000);
-    }
+"find-burner-os": {
+  id: "find-burner-os",
+  title: "Something in the Alley",
+  description: `
+    You’re creeping down a dark backstreet when you spot a cracked smartphone half-buried in trash.
+    It looks battered but… it might still work.
+    What do you do?
+  `,
+  options: [
+    { key: "A", label: "Pick it up and power it on",   outcome: "success" },
+    { key: "B", label: "Leave it—you don’t want trouble", outcome: "failure" }
+  ],
+  // no timer here
+  onSuccess: () => {
+    showOutcome("The screen flickers alive… Redirecting to your Burner OS!", "success");
+    // after a short pause, send them to the Burner OS page:
+    setTimeout(() => {
+      window.location.href = "https://hustletrap.blogspot.com/p/burner-os.html?m=1";
+    }, 1500);
   },
+  onFailure: () => {
+    showOutcome("You walk on… but you’ll regret not grabbing that.", "failure");
+    setTimeout(() => MissionEngine.start("find-burner-os"), 2000);
+  }
+},
+
 
   "street-purity-test": {
     id: "street-purity-test",
