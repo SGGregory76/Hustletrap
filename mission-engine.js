@@ -95,58 +95,86 @@ function hasCompleted(id){return completedMissions.includes(id);}
 function markCompleted(id){if(!hasCompleted(id)){completedMissions.push(id);localStorage.setItem('completedMissions',JSON.stringify(completedMissions));}}
 
 // 4. Missions definitions
-const Missions={
-  "find-burner-os":{
-    id:"find-burner-os",
-    title:"Something in the Alley",
-    description:`
-      You’re creeping down a dark backstreet when you spot a cracked smartphone half-buried in trash.
-      It looks battered but… it might still work.
-      What do you do?
+const Missions = {
+  // 1. Prologue: Find Your Burner OS
+  "find-burner-os": {
+    id: "find-burner-os",
+    title: "Something in the Alley",
+    description: `
+      You wake up cold, alone, and hungry on a backstreet bench.
+      Your head’s pounding and your pockets are empty—until you spot
+      something half-buried in last night’s rain-soaked trash.
+
+      It’s a cracked smartphone. The screen’s dark, but the casing
+      still feels warm to the touch. Could this be your ticket
+      back into the game?
     `,
-    options:[
-      {key:"A",label:"Pick it up and power it on",outcome:"success"},
-      {key:"B",label:"Leave it—you don’t want trouble",outcome:"failure"}
+    options: [
+      { key: "A", label: "Pick it up and power it on",   outcome: "success" },
+      { key: "B", label: "Leave it—you don’t want trouble", outcome: "failure" }
     ],
-    onSuccess:()=>{markCompleted("find-burner-os");showOutcome("The screen flickers alive… Redirecting to Burner OS!","success");setTimeout(()=>window.location.href="https://hustletrap.blogspot.com/p/burner-os.html?m=1",1500);},
-    onFailure:()=>{showOutcome("You walk on… but you’ll regret not grabbing that.","failure");setTimeout(()=>MissionEngine.start("find-burner-os"),3000);}
+    onSuccess: () => {
+      // …redirect into Burner OS…
+    },
+    onFailure: () => {
+      // …retry or fallout…
+    }
   },
-  "street-purity-test":{
-    id:"street-purity-test",
-    title:"Guess the Purest Bag",
-    description:`
-      Maya slides you three nondescript bags.
-      “One is pure, two are cut with filler.
-      Pick the pure one if you want full rep.”
+
+  // 2. Street Purity Test
+  "street-purity-test": {
+    id: "street-purity-test",
+    title: "Guess the Purest Bag",
+    description: `
+      Maya slides you three nondescript bags:
+        • Bag A: cloudy green with seedy bits  
+        • Bag B: deep emerald, crystal-coated  
+        • Bag C: pale with sticky residue  
+
+      Only one is 100% pure—pick it to earn full rep.
+      But pick wrong and you’ll raise Heat…
     `,
-    timerSeconds:20,
-    options:[
-      {key:"A",label:"Bag A",outcome:"failure"},
-      {key:"B",label:"Bag B",outcome:"success"},
-      {key:"C",label:"Bag C",outcome:"failure"}
+    timerSeconds: 20,
+    options: [
+      { key: "A", label: "Bag A", outcome: "failure" },
+      { key: "B", label: "Bag B", outcome: "success" },
+      { key: "C", label: "Bag C", outcome: "failure" }
     ],
-    onSuccess:()=>{markCompleted("street-purity-test");updateStats({xp:10,rep:5,cash:50});renderHUD();showOutcome("Correct! Maya’s impressed.","success");},
-    onFailure:()=>{updateStats({heat:10,rep:-2});renderHUD();showOutcome("Wrong bag—alarm’s raised! Heat +10.","failure");}
+    onSuccess: () => {
+      // …award xp/rep/cash…
+    },
+    onFailure: () => {
+      // …apply heat penalty…
+    }
   },
-  "delivery-route-test":{
-    id:"delivery-route-test",
-    title:"Route the Stash Safely",
-    description:`
-      You’ve got three routes to move product across town.
-      Route A skirts the docks (slow, low heat).
-      Route B cuts through the badlands (fast, medium heat).
-      Route C goes via the interstate (fastest, high heat).
+
+  // 3. Delivery Route Test
+  "delivery-route-test": {
+    id: "delivery-route-test",
+    title: "Route the Stash Safely",
+    description: `
+      You’ve got three routes to move product across town:
+        • Route A: skirts the docks (slow, low heat)  
+        • Route B: cuts through the badlands (fast, medium heat)  
+        • Route C: via the interstate (fastest, high heat)  
+
       Choose wisely before time runs out.
     `,
-    timerSeconds:15,
-    options:[
-      {key:"A",label:"Route A",outcome:"mixed"},
-      {key:"B",label:"Route B",outcome:"success"},
-      {key:"C",label:"Route C",outcome:"failure"}
+    timerSeconds: 15,
+    options: [
+      { key: "A", label: "Route A", outcome: "mixed" },
+      { key: "B", label: "Route B", outcome: "success" },
+      { key: "C", label: "Route C", outcome: "failure" }
     ],
-    onSuccess:()=>{markCompleted("delivery-route-test");updateStats({xp:20,rep:10,cash:100});renderHUD();showOutcome("You slipped past patrols—smooth delivery!","success");},
-    onMixed:()=>{updateStats({xp:10,rep:5,heat:5,cash:50});renderHUD();showOutcome("Route A was slow but safe-ish—smaller haul.","mixed");},
-    onFailure:()=>{updateStats({heat:15,rep:-5});renderHUD();showOutcome("Cops swarmed Route C—package seized!","failure");}
+    onSuccess: () => {
+      // …big reward…
+    },
+    onMixed: () => {
+      // …medium reward + some heat…
+    },
+    onFailure: () => {
+      // …lost stash + heat…
+    }
   }
 };
 
