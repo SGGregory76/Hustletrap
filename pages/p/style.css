@@ -1,0 +1,58 @@
+/* --- Mission Title Icons --- */
+/* Replace URLs with your own hosted SVG/PNG icons */
+
+#mission-container[data-mission="find-burner-os"] #mission-title:before {
+  content: url('https://example.com/icons/phone.svg');
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+#mission-container[data-mission="street-purity-test"] #mission-title:before {
+  content: url('https://example.com/icons/bag.svg');
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+#mission-container[data-mission="delivery-route-test"] #mission-title:before {
+  content: url('https://example.com/icons/map.svg');
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* --- Outcome Icons --- */
+#mission-outcome.success:before {
+  content: url('https://example.com/icons/check-circle.svg');
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+#mission-outcome.mixed:before {
+  content: url('https://example.com/icons/exclamation-triangle.svg');
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+#mission-outcome.failure:before {
+  content: url('https://example.com/icons/times-circle.svg');
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+/* --- Button Icon Accent (optional) --- */
+/* If you want an icon next to every option button */
+
+#mission-options button {
+  position: relative;
+  padding-left: 36px; /* leave space for icon */
+}
+
+#mission-container[data-mission="find-burner-os"] #mission-options button:before {
+  /* small phone icon on each button */
+  content: url('https://example.com/icons/mini-phone.svg');
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* You can add similar rules per mission for different option-icons. */
