@@ -131,37 +131,53 @@ const MissionEngine = {
 
 // 3. Rendering helpers with icons
 function renderSituation(m) {
+function renderSituation(m) {
   const container = document.getElementById("mission-container");
   container.setAttribute("data-mission", m.id);
 
-  // Title with icon
-  const titleEl = document.getElementById("mission-title");
-  titleEl.innerHTML = ``;
-  const iconUrl = MissionIcons[m.id];
-  if (iconUrl) {
-    const img = document.createElement("img");
-    img.src = iconUrl;
-    img.style.width = "24px";
-    img.style.height = "24px";
-    img.style.verticalAlign = "middle";
-    img.style.marginRight = "8px";
-    titleEl.appendChild(img);
-  }
-  titleEl.appendChild(document.createTextNode(m.title));
-
-  // Description
-  document.getElementById("mission-desc").innerHTML = m.description;
+  // Title + mission icon (already in place)...
+  // …
 
   // Options
   const opts = document.getElementById("mission-options");
   opts.innerHTML = "";
+
+  // Map your option keys to small icon URLs:
+  const OptionIcons = {
+    "street-purity-test": {
+      A: "https://yourcdn.com/icons/bag-filler.svg",
+      B: "https://yourcdn.com/icons/bag-pure.svg",
+      C: "https://yourcdn.com/icons/bag-filler.svg"
+    }
+    // add other missions if needed...
+  };
+
   m.options.forEach(opt => {
     const btn = document.createElement("button");
-    btn.innerText = opt.label;
+
+    // 1) create and style the icon element
+    const iconUrl = (OptionIcons[m.id] || {})[opt.key];
+    if (iconUrl) {
+      const img = document.createElement("img");
+      img.src = iconUrl;
+      img.className = "option-icon";
+      img.style.width = "16px";
+      img.style.height = "16px";
+      img.style.verticalAlign = "middle";
+      img.style.marginRight = "8px";
+      btn.appendChild(img);
+    }
+
+    // 2) add the label
+    btn.appendChild(document.createTextNode(opt.label));
+
+    // 3) click handler
     btn.onclick = () => MissionEngine.choose(opt.key);
+
     opts.appendChild(btn);
   });
 }
+
 
 // 4. Outcome display and stat updates
 function showOutcome(message, status) {
