@@ -1,58 +1,69 @@
-/* --- Mission Title Icons --- */
-/* Replace URLs with your own hosted SVG/PNG icons */
+/* Only target the mission container inside a post body */
+.post-body   #mission-container,
+.entry-content #mission-container {
+  position: relative;      /* flow with page content */
+  margin: 16px 0;          /* give it breathing room */
+  background: #1a1a1a;     /* dark panel background */
+  border-radius: 12px;     /* rounded corners */
+  padding: 16px;           /* inner spacing */
+  box-shadow: inset 0 0 8px #000; /* subtle inner glow */
+  color: #e0e0e0;          /* light text */
+  max-width: 100%;         /* never overflow */
+}
 
-#mission-container[data-mission="find-burner-os"] #mission-title:before {
-  content: url('https://example.com/icons/phone.svg');
+/* Title bar tweaks */
+.post-body   #mission-container #mission-title,
+.entry-content #mission-container #mission-title {
+  font-size: 1.3rem;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+/* Option buttons */
+.post-body   #mission-container #mission-options button,
+.entry-content #mission-container #mission-options button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #282828;
+  border: 2px solid #383838;
+  border-radius: 8px;
+  color: #e0e0e0;
+}
+
+/* Timer (if you’re using it) */
+.post-body   #mission-container #mission-timer,
+.entry-content #mission-container #mission-timer {
+  font-size: 0.9rem;
+  background: rgba(0,0,0,0.5);
+  padding: 4px 8px;
+  border-radius: 6px;
+  float: right;
+}
+
+/* Outcome box */
+.post-body   #mission-container #mission-outcome,
+.entry-content #mission-container #mission-outcome {
+  clear: both;
+  margin-top: 12px;
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+}
+.post-body   #mission-container #mission-outcome.success {
+  background: #0b3; color: #e0ffe0;
+}
+.post-body   #mission-container #mission-outcome.mixed {
+  background: #a60; color: #fff4cc;
+}
+.post-body   #mission-container #mission-outcome.failure {
+  background: #a00; color: #ffdede;
+}
+
+/* Example: bag mission icon */
+.post-body   #mission-container[data-mission="street-purity-test"] #mission-title:before {
+  content: url('https://yourcdn.com/icons/bag.svg');
   margin-right: 8px;
   vertical-align: middle;
 }
-
-#mission-container[data-mission="street-purity-test"] #mission-title:before {
-  content: url('https://example.com/icons/bag.svg');
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-#mission-container[data-mission="delivery-route-test"] #mission-title:before {
-  content: url('https://example.com/icons/map.svg');
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
-/* --- Outcome Icons --- */
-#mission-outcome.success:before {
-  content: url('https://example.com/icons/check-circle.svg');
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-#mission-outcome.mixed:before {
-  content: url('https://example.com/icons/exclamation-triangle.svg');
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-#mission-outcome.failure:before {
-  content: url('https://example.com/icons/times-circle.svg');
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-/* --- Button Icon Accent (optional) --- */
-/* If you want an icon next to every option button */
-
-#mission-options button {
-  position: relative;
-  padding-left: 36px; /* leave space for icon */
-}
-
-#mission-container[data-mission="find-burner-os"] #mission-options button:before {
-  /* small phone icon on each button */
-  content: url('https://example.com/icons/mini-phone.svg');
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* You can add similar rules per mission for different option-icons. */
