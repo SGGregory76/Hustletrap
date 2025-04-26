@@ -1,10 +1,10 @@
 // mission-engine.js
-// Self-contained mission engine with updated icon and text styling
+// Self-contained mission engine with CSS injection, persistent stats, and mission completion sync across pages
 
-// 1. Engine load log
-console.log("✅ MissionEngine loaded with refined styles");
+// 1. Log engine load
+console.log("✅ MissionEngine loaded with stats persistence");
 
-// 2. Inject scoped CSS for mission panel, icons, lists, and text readability
+// 2. Inject scoped CSS (panel, icons, lists, flex buttons)
 (function() {
   const css = `
     /* Panel container */
@@ -17,74 +17,46 @@ console.log("✅ MissionEngine loaded with refined styles");
       font-family: Roboto, sans-serif;
       box-sizing: border-box;
     }
-
     /* Force white text and remove link underlines */
     #mission-container, #mission-container * {
       color: #fff !important;
-      text-decoration: none;
+      text-decoration: none !important;
     }
-
-    /* Title + icon placeholder */
+    /* Title + icon */
     #mission-container #mission-title {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 12px;
-      font-size: 1.4rem;
-      font-weight: bold;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px; font-size: 1.4rem; font-weight: bold;
       position: relative;
     }
     #mission-container #mission-title::before {
       content: "";
       display: inline-block;
-      width: 28px;
-      height: 28px;
+      width: 28px; height: 28px;
       margin-right: 10px;
       background-size: contain;
       background-repeat: no-repeat;
-      background-position: center;
       vertical-align: middle;
     }
-
     /* Mission icons */
     #mission-container[data-mission="find-burner-os"]    #mission-title::before { background-image: url('https://yourcdn.com/icons/phone.svg'); }
     #mission-container[data-mission="street-purity-test"] #mission-title::before { background-image: url('https://yourcdn.com/icons/bag.svg'); }
-    #mission-container[data-mission="delivery-route-test"] #mission-title::before { background-image: url('https://yourcdn.com/icons/map.svg'); }
+    #mission-container[data-mission="delivery-route-test"]#mission-title::before { background-image: url('https://yourcdn.com/icons/map.svg'); }
 
-    /* Description: paragraphs & lists */
-    #mission-container #mission-desc {
-      margin-bottom: 12px;
-      font-size: 1rem;
-      line-height: 1.6;
-    }
-    #mission-container #mission-desc p {
-      margin-bottom: 10px;
-    }
-    #mission-container #mission-desc ul {
-      margin: 0 0 12px 20px;
-      padding: 0;
-      list-style: disc;
-    }
-    #mission-container #mission-desc li {
-      margin-bottom: 8px;
-    }
+    /* Description lists & paragraphs */
+    #mission-container #mission-desc { margin-bottom: 12px; line-height: 1.6; }
+    #mission-container #mission-desc p { margin-bottom: 10px; }
+    #mission-container #mission-desc ul { margin: 0 0 12px 20px; padding: 0; list-style: disc; }
+    #mission-container #mission-desc li { margin-bottom: 8px; }
 
     /* Timer */
     #mission-container #mission-timer {
-      text-align: right;
-      font-size: 0.9rem;
-      margin-bottom: 12px;
+      text-align: right; font-size: 0.9rem; margin-bottom: 12px;
     }
 
-    /* Buttons: flex layout with consistent padding */
-    #mission-container #mission-options {
-      display: flex;
-      gap: 12px;
-    }
+    /* Flex‑distributed buttons */
+    #mission-container #mission-options { display: flex; gap: 12px; }
     #mission-container #mission-options > button {
-      flex: 1;
-      margin: 0;
-      padding: 10px;
+      flex: 1; margin: 0; padding: 10px;
       background: #222 !important;
       border: 2px solid #555 !important;
       border-radius: 6px;
@@ -92,22 +64,18 @@ console.log("✅ MissionEngine loaded with refined styles");
       box-sizing: border-box;
       transition: background 0.2s, border-color 0.2s;
       text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-      font-size: 1rem;
-      line-height: 1.2;
+      font-size: 1rem; line-height: 1.2;
+      color: #fff !important;
     }
     #mission-container #mission-options > button:hover {
-      background: #333 !important;
-      border-color: #777 !important;
+      background: #333 !important; border-color: #777 !important;
     }
 
     /* Outcome box */
     #mission-container #mission-outcome {
-      margin-top: 12px;
-      padding: 8px;
-      border-radius: 6px;
-      text-align: center;
-      box-sizing: border-box;
-      font-size: 1rem;
+      margin-top: 12px; padding: 8px;
+      border-radius: 6px; text-align: center;
+      box-sizing: border-box; font-size: 1rem;
     }
     #mission-container #mission-outcome.success { background: #0b3 !important; }
     #mission-container #mission-outcome.mixed   { background: #a60 !important; }
@@ -120,12 +88,21 @@ console.log("✅ MissionEngine loaded with refined styles");
   document.head.appendChild(style);
 })();
 
-// 3. Completion log
+// 3. Persistent storage helpers
 let completedMissions = JSON.parse(localStorage.getItem('completedMissions') || '[]');
 function hasCompleted(id) { return completedMissions.includes(id); }
-function markCompleted(id) { if (!hasCompleted(id)) { completedMissions.push(id); localStorage.setItem('completedMissions', JSON.stringify(completedMissions)); }}
+function markCompleted(id) {
+  if (!hasCompleted(id)) {
+    completedMissions.push(id);
+    localStorage.setItem('completedMissions', JSON.stringify(completedMissions));
+  }
+}
 
-// 4. Missions definitions with refined descriptions
+// Stats persistence
+let playerStats = JSON.parse(localStorage.getItem('playerStats') || '{"xp":0,"rep":0,"cash":0,"heat":0}');
+function saveStats() { localStorage.setItem('playerStats', JSON.stringify(playerStats)); }
+
+// 4. Mission definitions
 const Missions = {
   "find-burner-os": {
     title: "Something in the Alley",
@@ -139,6 +116,7 @@ const Missions = {
     ],
     onSuccess() {
       markCompleted("find-burner-os");
+      updateStats({ xp: 0 });
       showOutcome("The screen flickers alive… Redirecting to Burner OS!", "success");
       setTimeout(() => location.href = "/p/burner-os.html?m=1", 1500);
     },
@@ -162,8 +140,15 @@ const Missions = {
       { key: "B", label: "Bag B", outcome: "success" },
       { key: "C", label: "Bag C", outcome: "failure" }
     ],
-    onSuccess() { markCompleted("street-purity-test"); showOutcome("Correct! Maya’s impressed.", "success"); },
-    onFailure() { showOutcome("Wrong bag—alarm raised! Heat +10.", "failure"); }
+    onSuccess() {
+      markCompleted("street-purity-test");
+      updateStats({ xp: 10, rep: 5, cash: 50 });
+      showOutcome("Correct! Maya’s impressed.", "success");
+    },
+    onFailure() {
+      updateStats({ heat: 10, rep: -2 });
+      showOutcome("Wrong bag—alarm raised! Heat +10.", "failure");
+    }
   },
   "delivery-route-test": {
     title: "Route the Stash Safely",
@@ -181,9 +166,19 @@ const Missions = {
       { key: "B", label: "Route B", outcome: "success" },
       { key: "C", label: "Route C", outcome: "failure" }
     ],
-    onSuccess() { markCompleted("delivery-route-test"); showOutcome("Smooth delivery! 🎉", "success"); },
-    onMixed()   { showOutcome("Slow but safe—+small reward.", "mixed"); },
-    onFailure() { showOutcome("Ambushed! Heat +10.", "failure"); }
+    onSuccess() {
+      markCompleted("delivery-route-test");
+      updateStats({ xp: 20, rep: 10, cash: 100 });
+      showOutcome("Smooth delivery! 🎉", "success");
+    },
+    onMixed() {
+      updateStats({ xp: 10, rep: 5, heat: 5, cash: 50 });
+      showOutcome("Slow but safe—+small reward.", "mixed");
+    },
+    onFailure() {
+      updateStats({ heat: 15, rep: -5 });
+      showOutcome("Ambushed! Heat +10.", "failure");
+    }
   }
 };
 
@@ -192,18 +187,25 @@ const MissionEngine = {
   current: null,
   timerId: null,
   start(id) {
-    if (hasCompleted(id)) { showOutcome("Mission already completed.", "info"); return; }
-    const m = Missions[id]; if (!m) return console.error(`No mission: ${id}`);
-    this.current = m; this.render(); if (m.timerSeconds) this.runTimer(m.timerSeconds);
+    if (hasCompleted(id)) { showOutcome("You’ve already completed this mission.", "info"); return; }
+    const m = Missions[id];
+    if (!m) return console.error(`No mission: ${id}`);
+    this.current = m;
+    this.render();
+    if (m.timerSeconds) this.runTimer(m.timerSeconds);
   },
   render() {
     const m = this.current;
     document.getElementById("mission-title").innerText = m.title;
     document.getElementById("mission-desc").innerHTML = m.description;
     document.getElementById("mission-timer").innerText = "";
-    const opts = document.getElementById("mission-options"); opts.innerHTML = "";
+    const opts = document.getElementById("mission-options");
+    opts.innerHTML = "";
     m.options.forEach(o => {
-      const btn = document.createElement("button"); btn.innerText = o.label; btn.onclick = () => this.choose(o.key); opts.appendChild(btn);
+      const btn = document.createElement("button");
+      btn.innerText = o.label;
+      btn.onclick = () => this.choose(o.key);
+      opts.appendChild(btn);
     });
     document.getElementById("mission-outcome").innerText = "";
   },
@@ -211,19 +213,36 @@ const MissionEngine = {
     clearInterval(this.timerId);
     const o = this.current.options.find(x => x.key === key);
     if (o.outcome === "success") this.current.onSuccess();
-    else if (o.outcome === "mixed")   this.current.onMixed();
-    else                                this.current.onFailure();
+    else if (o.outcome === "mixed") this.current.onMixed();
+    else this.current.onFailure();
   },
   runTimer(sec) {
     let t = sec;
-    const d = document.getElementById("mission-timer");
-    d.innerText = `Time: ${t}s`;
+    const disp = document.getElementById("mission-timer");
+    disp.innerText = `Time: ${t}s`;
     this.timerId = setInterval(() => {
-      t--; d.innerText = `Time: ${t}s`;
+      t--;
+      disp.innerText = `Time: ${t}s`;
       if (t <= 0) { clearInterval(this.timerId); this.current.onFailure(); }
     }, 1000);
   }
 };
 
-// 6. Expose engine globally
+// 6. Stats updater & showOutcome
+function updateStats(delta) {
+  if (delta.xp) playerStats.xp += delta.xp;
+  if (delta.rep) playerStats.rep += delta.rep;
+  if (delta.cash) playerStats.cash += delta.cash;
+  if (delta.heat) playerStats.heat += delta.heat;
+  saveStats();
+  if (typeof renderHUD === "function") renderHUD();
+}
+function showOutcome(msg, status) {
+  const el = document.getElementById("mission-outcome");
+  el.innerText = msg;
+  el.className = status;
+}
+
+// 7. Expose globally
 window.MissionEngine = MissionEngine;
+window.playerStats = playerStats;
