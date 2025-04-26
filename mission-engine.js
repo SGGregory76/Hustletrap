@@ -1,10 +1,20 @@
-console.log("✅ MissionEngine loaded");
+// ==== mission-engine.js ====
 
-// Optional: map mission IDs to icon URLs
+// 0. (Optional) Title icons
 const MissionIcons = {
   "find-burner-os":      "https://yourcdn.com/icons/phone.svg",
   "street-purity-test":  "https://yourcdn.com/icons/bag.svg",
   "delivery-route-test": "https://yourcdn.com/icons/map.svg"
+};
+
+// 0b. (Optional) Option icons per mission
+const OptionIcons = {
+  "street-purity-test": {
+    A: "https://yourcdn.com/icons/bag-filler.svg",
+    B: "https://yourcdn.com/icons/bag-pure.svg",
+    C: "https://yourcdn.com/icons/bag-filler.svg"
+  }
+  // add more missions here if you want icons on their options
 };
 
 // 1. Define your missions
@@ -18,7 +28,7 @@ const Missions = {
       What do you do?
     `,
     options: [
-      { key: "A", label: "Pick it up and power it on", outcome: "success" },
+      { key: "A", label: "Pick it up and power it on",   outcome: "success" },
       { key: "B", label: "Leave it—you don’t want trouble", outcome: "failure" }
     ],
     onSuccess: () => {
@@ -66,7 +76,7 @@ const Missions = {
       Choose wisely before time runs out.
     `,
     options: [
-      { key: "A", label: "Route A", outcome: "mixed" },
+      { key: "A", label: "Route A", outcome: "mixed"   },
       { key: "B", label: "Route B", outcome: "success" },
       { key: "C", label: "Route C", outcome: "failure" }
     ],
@@ -107,9 +117,8 @@ const MissionEngine = {
     switch (choice.outcome) {
       case "success": onSuccess(); break;
       case "mixed":   onMixed   && onMixed(); break;
-      default:          onFailure(); break;
+      default:        onFailure(); break;
     }
-
     this.currentMission = null;
   },
 
@@ -129,57 +138,58 @@ const MissionEngine = {
   }
 };
 
-// 3. Rendering helpers with icons
-function renderSituation(m) {
+// 3. Rendering helpers
 function renderSituation(m) {
   const container = document.getElementById("mission-container");
   container.setAttribute("data-mission", m.id);
 
-  // Title + mission icon (already in place)...
-  // …
+  // Title + icon
+  const titleEl = document.getElementById("mission-title");
+  titleEl.innerHTML = "";
+  const iconUrl = MissionIcons[m.id];
+  if (iconUrl) {
+    const img = document.createElement("img");
+    img.src = iconUrl;
+    img.style.width = "24px";
+    img.style.height = "24px";
+    img.style.verticalAlign = "middle";
+    img.style.marginRight = "8px";
+    img.alt = m.title + " icon";
+    titleEl.appendChild(img);
+  }
+  titleEl.appendChild(document.createTextNode(m.title));
 
-  // Options
+  // Description
+  document.getElementById("mission-desc").innerHTML = m.description;
+
+  // Options + per-option icons
   const opts = document.getElementById("mission-options");
   opts.innerHTML = "";
-
-  // Map your option keys to small icon URLs:
-  const OptionIcons = {
-    "street-purity-test": {
-      A: "https://yourcdn.com/icons/bag-filler.svg",
-      B: "https://yourcdn.com/icons/bag-pure.svg",
-      C: "https://yourcdn.com/icons/bag-filler.svg"
-    }
-    // add other missions if needed...
-  };
-
   m.options.forEach(opt => {
     const btn = document.createElement("button");
 
-    // 1) create and style the icon element
-    const iconUrl = (OptionIcons[m.id] || {})[opt.key];
-    if (iconUrl) {
+    // Option icon (if defined)
+    const optIcons = OptionIcons[m.id] || {};
+    const icon = optIcons[opt.key];
+    if (icon) {
       const img = document.createElement("img");
-      img.src = iconUrl;
+      img.src = icon;
       img.className = "option-icon";
       img.style.width = "16px";
       img.style.height = "16px";
       img.style.verticalAlign = "middle";
-      img.style.marginRight = "8px";
+      img.style.marginRight = "6px";
+      img.alt = "";
       btn.appendChild(img);
     }
 
-    // 2) add the label
     btn.appendChild(document.createTextNode(opt.label));
-
-    // 3) click handler
     btn.onclick = () => MissionEngine.choose(opt.key);
-
     opts.appendChild(btn);
   });
 }
 
-
-// 4. Outcome display and stat updates
+// 4. Outcome & stats
 function showOutcome(message, status) {
   const out = document.getElementById("mission-outcome");
   out.innerText = message;
