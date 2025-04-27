@@ -1,7 +1,7 @@
-<!-- Contacts Page: Phone‐Style UI with Blaze Seeded -->
+<!-- Contacts Page: Always Seed Blaze -->
 <div id="contacts-container" class="phone-ui">
   <header>Contacts</header>
-  <ul id="contacts-list"><!-- contacts go here --></ul>
+  <ul id="contacts-list"><!-- contacts will appear here --></ul>
 </div>
 
 <style>
@@ -61,41 +61,47 @@
 </style>
 
 <script>
-  // Render function
-  function renderContacts(list) {
-    const ul = document.getElementById('contacts-list');
-    ul.innerHTML = '';
-    list.forEach(name => {
-      const li = document.createElement('li');
-      const icons = { 'Blaze':'🔥', 'Jax':'🧑‍💼', 'Maya':'🕵️' };
-      const ico = document.createElement('span');
-      ico.className = 'icon';
-      ico.innerText = icons[name] || '👤';
-      const nm = document.createElement('span');
-      nm.className = 'name';
-      nm.innerText = name;
-      const inf = document.createElement('span');
-      inf.className = 'info';
-      inf.innerText = `Tap to message ${name}`;
-      li.append(ico, nm, inf);
-      li.onclick = () => alert(`Opening chat with ${name}…`);
-      ul.appendChild(li);
-    });
-  }
-  window.renderContacts = renderContacts;
-
-  document.addEventListener('DOMContentLoaded', () => {
-    if (window.HT && HT.contacts) {
-      // 1) Load existing contacts
-      HT.contacts.load?.();
-      // 2) Seed Blaze if empty
-      if (HT.contacts.contacts.length === 0) {
-        HT.contacts.add('Blaze');
-      } else {
-        renderContacts(HT.contacts.contacts);
-      }
-    } else {
-      console.error('HT.contacts not initialized');
+  (function(){
+    const KEY = 'ht_contacts';
+    // 1) Load or initialize contacts
+    let contacts = JSON.parse(localStorage.getItem(KEY) || '[]');
+    if (!contacts.includes('Blaze')) {
+      contacts.unshift('Blaze');
+      localStorage.setItem(KEY, JSON.stringify(contacts));
     }
-  });
+    // 2) Render function
+    function renderContacts(list) {
+      const ul = document.getElementById('contacts-list');
+      ul.innerHTML = '';
+      list.forEach(name => {
+        const li = document.createElement('li');
+        const ico = document.createElement('span');
+        ico.className = 'icon';
+        // Emoji icons; swap to SVG if you like
+        const map = { Blaze: '🔥', Jax: '🧑‍💼', Maya: '🕵️' };
+        ico.innerText = map[name] || '👤';
+        const nm = document.createElement('span');
+        nm.className = 'name';
+        nm.innerText = name;
+        const inf = document.createElement('span');
+        inf.className = 'info';
+        inf.innerText = `Tap to message ${name}`;
+        li.append(ico, nm, inf);
+        li.onclick = () => alert(`Opening chat with ${name}…`);
+        ul.appendChild(li);
+      });
+    }
+    // 3) Initial render
+    document.addEventListener('DOMContentLoaded', () => {
+      renderContacts(contacts);
+    });
+    // 4) Expose for future adds
+    window.addContact = name => {
+      if (!contacts.includes(name)) {
+        contacts.push(name);
+        localStorage.setItem(KEY, JSON.stringify(contacts));
+        renderContacts(contacts);
+      }
+    };
+  })();
 </script>
