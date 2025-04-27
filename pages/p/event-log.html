@@ -1,0 +1,46 @@
+<!-- Event Log Page -->
+<div id="log-container" style="
+  background:#111;
+  color:#fff;
+  padding:16px;
+  border-radius:8px;
+  font-family:Roboto,sans-serif;
+  max-width:600px;
+  margin:auto;
+">
+  <h2 style="margin-bottom:12px;">Activity Log</h2>
+  <ul id="log-list" style="
+    list-style:none;
+    padding:0;
+    margin:0;
+    max-height:400px;
+    overflow-y:auto;
+    border-top:1px solid #333;
+  "></ul>
+</div>
+
+<script>
+  // 1) renderLog: displays entries (newest first, up to 20)
+  function renderLog(entries) {
+    const ul = document.getElementById('log-list');
+    ul.innerHTML = '';  // clear old
+    // show most recent first
+    entries.slice(-20).reverse().forEach(msg => {
+      const li = document.createElement('li');
+      li.innerText = msg;
+      li.style.padding = '6px 0';
+      li.style.borderBottom = '1px solid #222';
+      ul.appendChild(li);
+    });
+  }
+
+  // 2) Expose so engine can call it when logEvent fires
+  window.renderLog = renderLog;
+
+  // 3) On load, fetch stored log and render
+  document.addEventListener('DOMContentLoaded', () => {
+    // pull your shared log from localStorage
+    const stored = JSON.parse(localStorage.getItem('eventLog') || '[]');
+    renderLog(stored);
+  });
+</script>
