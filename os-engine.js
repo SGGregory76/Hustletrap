@@ -1,45 +1,75 @@
 // os-engine.js
-// Include after game-engine.js on your OS page
+// HustleTrap OS Shell Integration
+// Load after game-engine.js to render the OS menu and content pane.
 
 (function(){
   class OSEngine {
     constructor() {
       this.menuItems = [
-        { id: 'contacts', label: 'Contacts',    action: () => renderContacts(HT.contacts.contacts) },
-        { id: 'inventory',label: 'Inventory',   action: () => renderInventory(HT.inventory.items) },
-        { id: 'missions', label: 'Missions',    action: () => HT.missions.startNextMission() },
-        { id: 'crafting', label: 'Crafting',    action: () => renderCrafting(HT.crafting.recipes) },
-        { id: 'map',      label: 'Map',         action: () => renderMap(HT.mapData) }
+        { id: 'hud',      label: 'Dashboard', action: () => this.showHUD() },
+        { id: 'contacts', label: 'Contacts',  action: () => this.showContacts() },
+        { id: 'inventory',label: 'Inventory', action: () => this.showInventory() },
+        { id: 'missions', label: 'Missions',  action: () => this.launchMission() },
+        { id: 'crafting', label: 'Crafting',  action: () => this.showCrafting() },
+        { id: 'map',      label: 'Map',       action: () => this.showMap() }
       ];
     }
+
     init() {
       this.renderMenu();
-      // load the first view
+      // default view: dashboard
       this.menuItems[0].action();
     }
+
     renderMenu() {
       const nav = document.getElementById('os-nav');
       nav.innerHTML = '';
       this.menuItems.forEach(item => {
         const btn = document.createElement('button');
         btn.innerText = item.label;
+        btn.style.cssText = 'background:#222;color:#fff;border:none;padding:8px 12px;border-radius:4px;cursor:pointer;margin-right:8px;font-family:Roboto,sans-serif;';
         btn.onclick = item.action;
-        btn.style.margin = '0 8px';
         nav.appendChild(btn);
       });
     }
+
+    showHUD() {
+      if (window.renderHUD) window.renderHUD(HT.stats.data);
+    }
+
+    showContacts() {
+      if (window.renderContacts) window.renderContacts(HT.contacts.contacts);
+    }
+
+    showInventory() {
+      if (window.renderInventory) window.renderInventory(HT.inventory.items);
+    }
+
+    launchMission() {
+      // start next incomplete mission
+      if (window.HT && HT.missions && HT.missions.startNextMission) {
+        HT.missions.startNextMission();
+      } else {
+        alert('No missions available.');
+      }
+    }
+
+    showCrafting() {
+      if (window.renderCrafting) window.renderCrafting(HT.crafting.recipes);
+    }
+
+    showMap() {
+      if (window.renderMap) window.renderMap(HT.mapData);
+    }
   }
 
-  // Helper to go to the next mission in sequence
-  HT.missions.startNextMission = function() {
-    const flow = window.missionFlow;              // from your existing game-engine
-    const done = JSON.parse(localStorage.getItem('completedMissions')||'[]');
-    const nextId = flow.find(id => !done.includes(id));
-    if (nextId) HT.missions.start(nextId);
-    else alert('All missions complete!');
-  };
-
-  // Expose and auto-init
-  window.HT.OS = new OSEngine();
-  document.addEventListener('DOMContentLoaded', () => HT.OS.init());
+  // Expose and auto-init after DOM ready
+  window.addEventListener('DOMContentLoaded', () => {
+    if (window.HT && document.getElementById('os-nav')) {
+      window.HT.OS = new OSEngine();
+      window.HT.OS.init();
+    } else {
+      console.error('OS Engine: Missing HT or os-nav container');
+    }
+  });
 })();
