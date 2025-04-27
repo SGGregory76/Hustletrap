@@ -1,4 +1,4 @@
-<!-- Prologue: Blaze’s Initiation (5-Question Edition) -->
+<!-- Prologue: Blaze’s Initiation (Redirect Fix v2) -->
 <div id="mission-container" data-mission="blaze-initiation">
   <h2 id="mission-title"></h2>
   <div id="mission-desc"></div>
@@ -7,147 +7,95 @@
 </div>
 
 <style>
-  /* Container */
-  #mission-container {
-    margin:16px auto; padding:16px; background:#111;
-    border:2px solid #444; border-radius:8px;
-    max-width:500px; font-family:Roboto,sans-serif;
-    color:#fff; box-sizing:border-box;
-  }
-  /* Title with icon */
-  #mission-title {
-    position:relative; background:rgba(0,0,0,0.8);
-    padding:0.75em 1em 0.75em 3.5em; border-radius:4px;
-    font-size:1.4rem; text-shadow:1px 1px 2px rgba(0,0,0,0.8);
-    margin-bottom:12px;
-  }
-  #mission-title::before {
-    content:""; position:absolute; left:1em; top:50%;
-    width:24px; height:24px; transform:translateY(-50%);
-    background:url('https://yourcdn.com/icons/phone.svg') center/contain no-repeat;
-  }
-  /* Descriptions & outcome */
-  #mission-desc, #mission-outcome {
-    margin-bottom:12px; line-height:1.5;
-    background:rgba(0,0,0,0.6); padding:0.5em; border-radius:4px;
-  }
-  #mission-outcome.info    { background:#0066cc!important; }
-  #mission-outcome.success { background:#0b3!important; }
-  #mission-outcome.failure { background:#a00!important; }
-  /* Options/buttons */
-  #mission-options {
-    display:flex; flex-direction:column; gap:8px;
-  }
-  #mission-options button {
-    background:#222; border:2px solid #555; border-radius:6px;
-    padding:0.75em; font-size:1rem; color:#fff;
-    text-shadow:0 1px 2px rgba(0,0,0,0.8); cursor:pointer;
-    transition:background .2s, border-color .2s;
-    display:flex; align-items:center; gap:0.5em;
-  }
-  #mission-options button:hover { background:#333; border-color:#777; }
-  #mission-options button:disabled { opacity:0.6; cursor:default; }
-  /* Emoji icons */
-  .choice-icon { font-size:1.5rem; line-height:1; }
+  /* (same container & button CSS as before) */
+  #mission-container {margin:16px auto;padding:16px;background:#111;border:2px solid #444;border-radius:8px;max-width:500px;font-family:Roboto,sans-serif;color:#fff;box-sizing:border-box;}
+  #mission-title {position:relative;background:rgba(0,0,0,0.8);padding:0.75em 1em 0.75em 3.5em;border-radius:4px;font-size:1.4rem;text-shadow:1px 1px 2px rgba(0,0,0,0.8);margin-bottom:12px;}
+  #mission-title::before {content:"";position:absolute;left:1em;top:50%;width:24px;height:24px;transform:translateY(-50%);background:url('https://yourcdn.com/icons/phone.svg') center/contain no-repeat;}
+  #mission-desc, #mission-outcome {margin-bottom:12px;line-height:1.5;background:rgba(0,0,0,0.6);padding:0.5em;border-radius:4px;}
+  #mission-outcome.info{background:#0066cc!important;} #mission-outcome.success{background:#0b3!important;} #mission-outcome.failure{background:#a00!important;}
+  #mission-options{display:flex;flex-direction:column;gap:8px;}
+  #mission-options button{background:#222;border:2px solid #555;border-radius:6px;padding:0.75em;font-size:1rem;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.8);cursor:pointer;transition:background .2s,border-color .2s;display:flex;align-items:center;gap:0.5em;}
+  #mission-options button:hover{background:#333;border-color:#777;} #mission-options button:disabled{opacity:0.6;cursor:default;}
+  .choice-icon{font-size:1.5rem;line-height:1;}
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   HT.missions.register('blaze-initiation', {
     run() {
-      const c    = document.getElementById('mission-container');
-      const title= c.querySelector('#mission-title');
-      const desc = c.querySelector('#mission-desc');
-      const opts = c.querySelector('#mission-options');
-      const out  = c.querySelector('#mission-outcome');
+      const container = document.getElementById('mission-container');
+      const titleEl   = container.querySelector('#mission-title');
+      const descEl    = container.querySelector('#mission-desc');
+      const optsEl    = container.querySelector('#mission-options');
+      const outEl     = container.querySelector('#mission-outcome');
       let xp=0, rep=0, rp=0, heat=0, cash=0;
 
-      title.innerText = "Prologue: Blaze’s Initiation";
-      desc.innerHTML = `
+      titleEl.innerText = "Prologue: Blaze’s Initiation";
+      descEl.innerHTML = `
         <p>You wake on a curb under neon haze. Blaze, legend of the grid, slides you a patched phone.</p>
         <p>"No wrong answers, just consequences. Let’s see what you’re worth."</p>
       `;
-      opts.innerHTML = "";
-      out.innerText = "";
 
-      // five rapid-fire questions
       const questions = [
-        {
-          prompt: "What’s your vice?",
-          choices: [
-            { icon:"🔥", text:"Chaos over calm", dx:{xp:10,rp:2} },
-            { icon:"💼", text:"Business first",   dx:{rep:5,cash:5} },
-            { icon:"🌪️", text:"Chase the thrill", dx:{rp:8,heat:3} }
-          ]
-        },{
-          prompt: "First deal: speed or stealth?",
-          choices: [
-            { icon:"💨", text:"Full throttle",   dx:{rp:10,heat:5} },
-            { icon:"🌑", text:"Through shadows",  dx:{rep:5,xp:3} },
-            { icon:"⚖️", text:"Depends on job",  dx:{xp:3,rep:3,rp:3} }
-          ]
-        },{
-          prompt: "Street cred or zero heat?",
-          choices: [
-            { icon:"🏆", text:"Cred’s king",     dx:{rep:5,heat:5} },
-            { icon:"☂️", text:"Stay clean",      dx:{cash:5,xp:2} },
-            { icon:"☯️", text:"Balance is all",  dx:{xp:4,rep:4,cash:4} }
-          ]
-        },{
-          prompt: "Favorite late-night snack?",
-          choices: [
-            { icon:"🍕", text:"Greasy pizza",    dx:{rp:5,heat:2} },
-            { icon:"🍫", text:"Chocolate bars",  dx:{xp:2,rp:2} },
-            { icon:"🌮", text:"Tacos on the go", dx:{cash:3,rep:1} }
-          ]
-        },{
-          prompt: "Your motto in one word?",
-          choices: [
-            { icon:"🚀", text:"Go!",            dx:{xp:5,rp:5} },
-            { icon:"💀", text:"Fearless",       dx:{heat:5,rep:3} },
-            { icon:"🧠", text:"Calculated",     dx:{rep:4,xp:2} }
-          ]
-        }
+        { prompt:"What’s your vice?", choices:[
+            {icon:"🔥",text:"Chaos over calm",dx:{xp:10,rp:2}},
+            {icon:"💼",text:"Business first",  dx:{rep:5,cash:5}},
+            {icon:"🌪️",text:"Chase the thrill",dx:{rp:8,heat:3}}
+        ]},
+        { prompt:"First deal: speed or stealth?", choices:[
+            {icon:"💨",text:"Full throttle",  dx:{rp:10,heat:5}},
+            {icon:"🌑",text:"Through shadows", dx:{rep:5,xp:3}},
+            {icon:"⚖️",text:"Depends on job", dx:{xp:3,rep:3,rp:3}}
+        ]},
+        { prompt:"Street cred or zero heat?", choices:[
+            {icon:"🏆",text:"Cred’s king",    dx:{rep:5,heat:5}},
+            {icon:"☂️",text:"Stay clean",     dx:{cash:5,xp:2}},
+            {icon:"☯️",text:"Balance is all", dx:{xp:4,rep:4,cash:4}}
+        ]},
+        { prompt:"Favorite late-night snack?", choices:[
+            {icon:"🍕",text:"Greasy pizza",   dx:{rp:5,heat:2}},
+            {icon:"🍫",text:"Chocolate bars", dx:{xp:2,rp:2}},
+            {icon:"🌮",text:"Tacos on the go",dx:{cash:3,rep:1}}
+        ]},
+        { prompt:"Your motto in one word?", choices:[
+            {icon:"🚀",text:"Go!",           dx:{xp:5,rp:5}},
+            {icon:"💀",text:"Fearless",      dx:{heat:5,rep:3}},
+            {icon:"🧠",text:"Calculated",    dx:{rep:4,xp:2}}
+        ]}
       ];
 
       function ask(i) {
-        if (i>=questions.length) return finish();
-        const q = questions[i];
-        desc.innerHTML = `<p>${q.prompt}</p>`;
-        opts.innerHTML = "";
-        out.innerText = "";
-        q.choices.forEach(ch => {
+        descEl.innerHTML = `<p>${questions[i].prompt}</p>`;
+        optsEl.innerHTML = '';
+        outEl.innerText = '';
+        questions[i].choices.forEach(ch => {
           const btn = document.createElement('button');
           btn.innerHTML = `<span class="choice-icon">${ch.icon}</span>${ch.text}`;
           btn.onclick = () => {
-            // apply stats
             xp   += ch.dx.xp   || 0;
             rep  += ch.dx.rep  || 0;
             rp   += ch.dx.rp   || 0;
             heat += ch.dx.heat || 0;
             cash += ch.dx.cash || 0;
-            // log each response
-            logEvent(`Prologue Q${i+1}: “${ch.text}”`);
-            ask(i+1);
+            logEvent(`Q${i+1}: ${ch.text}`);
+            if (i+1 < questions.length) ask(i+1);
+            else finish();
           };
-          opts.appendChild(btn);
+          optsEl.appendChild(btn);
         });
       }
 
       function finish() {
-        opts.querySelectorAll('button').forEach(b=>b.disabled=true);
-        // seed Blaze
+        optsEl.querySelectorAll('button').forEach(b=>b.disabled=true);
         addContact('Blaze');
-        // save stats
-        HT.stats.update({ xp, rep, heat, cash });
-        out.className = 'info';
-        out.innerText = 
-          `Stats set — XP:${xp} Rep:${rep} RP:${rp} Heat:${heat} Cash:${cash}`;
+        HT.stats.update({xp,rep,heat,cash});
         logEvent('Prologue complete');
-        // redirect to Burner OS
-        setTimeout(() => {
-          window.location.href = '/p/burner-os.html?m=1';
-        }, 2000);
+        outEl.className = 'info';
+        outEl.innerHTML = `Stats — XP:${xp} Rep:${rep} RP:${rp} Heat:${heat} Cash:${cash}<br>`;
+        outEl.innerHTML += `<a id="go-os" style="color:#0af;text-decoration:underline;cursor:pointer;">Go to Burner OS →</a>`;
+        console.log('📲 Redirecting to Burner OS…');
+        document.getElementById('go-os').onclick = () => location.href='https://hustletrap.blogspot.com/p/burner-os.html?m=1';
+        setTimeout(() => location.href='https://hustletrap.blogspot.com/p/burner-os.html?m=1', 2000);
       }
 
       ask(0);
