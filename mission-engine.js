@@ -81,14 +81,33 @@ const Missions = {
 };
 
 // 5. Engine core with option lock
-const MissionEngine = {
-  current:null,
-  timerId:null,
-  start(id){
-    if(hasCompleted(id)) { showOutcome("Already completed.","info"); return; }
-    this.current = Missions[id]; if(!this.current) return;
-    this.render(); if(this.current.timerSeconds) this.runTimer(this.current.timerSeconds);
-  },
+// ── Global lock (single value, no per‐tab session) ──
+function getLock() {
+  return localStorage.getItem('activeMission');
+}
+function setLock(id) {
+  localStorage.setItem('activeMission', id);
+}
+function clearLock() {
+  localStorage.removeItem('activeMission');
+}
+start(id) {
+  const lock = getLock();
+  if (lock && lock !== id) {
+    return showOutcome(
+      `Mission “${lock}” already running elsewhere.`,
+      'info'
+    );
+  }
+  if (hasCompleted(id)) {
+    return showOutcome(`You’ve already completed this mission.`, 'info');
+  }
+  // grab the lock
+  setLock(id);
+  // …the rest of your start logic…
+}
+
+
   render(){
     const m=this.current;
     document.getElementById("mission-title").innerText=m.title;
