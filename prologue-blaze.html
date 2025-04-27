@@ -1,0 +1,107 @@
+<!-- Prologue: Blaze’s Initiation -->
+<div id="mission-container" data-mission="blaze-initiation">
+  <h2 id="mission-title"></h2>
+  <div id="mission-desc"></div>
+  <div id="mission-timer"></div>
+  <div id="mission-options"></div>
+  <div id="mission-outcome"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // 1) Register mission
+  HT.missions.register('blaze-initiation', {
+    run() {
+      const c = document.getElementById('mission-container');
+      const title = c.querySelector('#mission-title');
+      const desc = c.querySelector('#mission-desc');
+      const opts = c.querySelector('#mission-options');
+      const out = c.querySelector('#mission-outcome');
+      let xp=0, rep=0, rp=0, heat=0, cash=0;
+
+      // Build introduction
+      title.innerText = "Prologue: Blaze’s Initiation";
+      desc.innerHTML = `
+        <p>You wake on a curb under neon haze. Blaze, legend of the grid, slides you a patched phone.</p>
+        <p>"No wrong answers, just consequences. Let’s see what you’re worth."</p>
+      `;
+      opts.innerHTML = "";
+
+      // Define questions
+      const questions = [
+        {
+          prompt: "What’s your vice?",
+          choices: [
+            { text:"I like my chaos shaken, not stirred.", dx:{xp:10, rp:2} },
+            { text:"I’m about business—keep your feelings out.", dx:{rep:5, cash:5} },
+            { text:"Life’s too short—I chase distractions.", dx:{rp:8, heat:3} }
+          ]
+        },
+        {
+          prompt: "First deal: speed or stealth?",
+          choices: [
+            { text:"Fast lane or no lane.", dx:{rp:10, heat:5} },
+            { text:"Slip through shadows.", dx:{rep:5, xp:3} },
+            { text:"Depends on the job.", dx:{xp:3, rep:3, rp:3} }
+          ]
+        },
+        {
+          prompt: "Street cred or zero heat?",
+          choices: [
+            { text:"Cred’s currency.", dx:{rep:5, heat:5} },
+            { text:"Keep it clean.", dx:{cash:5, xp:2} },
+            { text:"Balance is everything.", dx:{xp:4, rep:4, cash:4} }
+          ]
+        }
+      ];
+
+      // Recursive function to ask each question
+      function ask(idx) {
+        opts.innerHTML = "";
+        out.innerText = "";
+        if (idx >= questions.length) return finish();
+        const q = questions[idx];
+        desc.innerHTML = `<p>${q.prompt}</p>`;
+        q.choices.forEach((ch,i) => {
+          const btn = document.createElement('button');
+          btn.innerText = ch.text;
+          btn.onclick = () => {
+            // apply stats
+            Object.assign(
+              {xp,rep,rp,heat,cash},
+              Object.keys(ch.dx).forEach(k => window[k] = window[k] + ch.dx[k])
+            );
+            xp += ch.dx.xp||0;
+            rep += ch.dx.rep||0;
+            rp += ch.dx.rp||0;
+            heat += ch.dx.heat||0;
+            cash += ch.dx.cash||0;
+            ask(idx+1);
+          };
+          opts.appendChild(btn);
+        });
+      }
+
+      function finish() {
+        // Disable options
+        opts.querySelectorAll('button').forEach(b=>b.disabled=true);
+        // Seed Blaze
+        addContact('Blaze');
+        // Show outcome summary
+        out.className = 'info';
+        out.innerText = 
+          `Stats set! XP:${xp} Rep:${rep} RP:${rp} Heat:${heat} Cash:${cash}`;
+        // Save stats
+        HT.stats.update({xp,rep,heat,cash});
+        // Redirect to next mission
+        setTimeout(() => HT.missions.start('meet-jax'), 2000);
+      }
+
+      ask(0);
+    }
+  });
+
+  // 2) Start it
+  HT.missions.start('blaze-initiation');
+});
+</script>
