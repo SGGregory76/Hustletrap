@@ -1,5 +1,5 @@
-<!-- ====== PROLOGUE: Blaze’s Initiation (5 Q’s + Logging + Redirect) ====== -->
-<div id="mission-container" data-mission="blaze-initiation" style="
+<!-- ===== PROLOGUE: Blaze’s Initiation (Complete Script) ===== -->
+<div id="mission-container" data-mission="find-burner-os" style="
   margin:16px auto;
   padding:16px;
   background:#111;
@@ -10,7 +10,7 @@
   color:#fff;
   box-sizing:border-box;
 ">
-  <h2 id="mission-title" style="
+  <h2 style="
     position:relative;
     background:rgba(0,0,0,0.8);
     padding:0.75em 1em 0.75em 3.5em;
@@ -18,23 +18,21 @@
     font-size:1.4rem;
     text-shadow:1px 1px 2px rgba(0,0,0,0.8);
     margin-bottom:12px;
-  ">Prologue: Blaze’s Initiation</h2>
+  ">
+    <span style="position:absolute;left:1em;top:50%;transform:translateY(-50%);font-size:1.2rem;">📱</span>
+    Prologue: Blaze’s Initiation
+  </h2>
   <div id="mission-desc" style="
     margin-bottom:12px;
-    line-height:1.5;
     background:rgba(0,0,0,0.6);
     padding:0.5em;
     border-radius:4px;
+    line-height:1.5;
   ">
-    <p>You wake on a curb under neon haze. Blaze, the one-name legend, slides you a patched phone.</p>
+    <p>You wake on a curb under neon haze. Blaze, legend of the grid, slides you a patched phone.</p>
     <p><em>"No wrong answers, just consequences. Let’s see what you’re worth."</em></p>
   </div>
-  <div id="mission-options" style="
-    display:flex;
-    flex-direction:column;
-    gap:8px;
-    margin-bottom:12px;
-  "></div>
+  <div id="mission-options" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px;"></div>
   <div id="mission-outcome" style="
     line-height:1.5;
     background:rgba(0,0,0,0.6);
@@ -46,78 +44,69 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // storage keys
-  const statsKey    = 'playerStats';
-  const logKey      = 'eventLog';
-  const contactsKey = 'contacts';
+  const statsKey     = 'playerStats';
+  const logKey       = 'eventLog';
+  const compKey      = 'completedMissions';
+  const contactsKey  = 'contacts';
+  const osUrl        = 'https://hustletrap.blogspot.com/p/burner-os.html?m=1';
 
-  // load or init
-  let stats    = JSON.parse(localStorage.getItem(statsKey)    || '{"xp":0,"rep":0,"rp":0,"heat":0,"cash":0}');
-  let logArr   = JSON.parse(localStorage.getItem(logKey)      || '[]');
-  let contacts = JSON.parse(localStorage.getItem(contactsKey) || '[]');
+  // load or initialize storage
+  let stats     = JSON.parse(localStorage.getItem(statsKey)    || '{"xp":0,"rep":0,"rp":0,"heat":0,"cash":0}');
+  let logArr    = JSON.parse(localStorage.getItem(logKey)      || '[]');
+  let completed = JSON.parse(localStorage.getItem(compKey)     || '[]');
+  let contacts  = JSON.parse(localStorage.getItem(contactsKey) || '[]');
 
-  // seed Blaze if missing
+  // seed Blaze once
   if (!contacts.includes('Blaze')) {
     contacts.unshift('Blaze');
     localStorage.setItem(contactsKey, JSON.stringify(contacts));
-    logArr.push(`[${new Date().toLocaleTimeString()}] Contact seeded: Blaze`);
-  }
-
-  // persistors
-  function saveStats()   { localStorage.setItem(statsKey, JSON.stringify(stats)); }
-  function logEvent(msg) {
-    logArr.push(`[${new Date().toLocaleTimeString()}] ${msg}`);
+    logArr.push(`[${new Date().toLocaleTimeString()}] Seeded contact: Blaze`);
     localStorage.setItem(logKey, JSON.stringify(logArr));
-    console.log('Log:', msg);
   }
 
-  // questions array
+  function saveStats()    { localStorage.setItem(statsKey, JSON.stringify(stats)); }
+  function saveLog()      { localStorage.setItem(logKey,    JSON.stringify(logArr)); }
+  function saveCompleted(){ localStorage.setItem(compKey,   JSON.stringify(completed)); }
+
+  function logEvent(msg) {
+    const entry = `[${new Date().toLocaleTimeString()}] ${msg}`;
+    logArr.push(entry);
+    saveLog();
+    console.log(entry);
+  }
+
+  // the five questions
   const questions = [
-    {
-      prompt: "What’s your vice?",
-      choices: [
-        { icon:"🔥", text:"Chaos over calm", dx:{xp:10,rp:2} },
-        { icon:"💼", text:"Business first",   dx:{rep:5,cash:5} },
-        { icon:"🌪️", text:"Chase the thrill", dx:{rp:8,heat:3} }
-      ]
-    },
-    {
-      prompt: "First deal: speed or stealth?",
-      choices: [
-        { icon:"💨", text:"Full throttle",   dx:{rp:10,heat:5} },
-        { icon:"🌑", text:"Through shadows",  dx:{rep:5,xp:3} },
-        { icon:"⚖️", text:"Depends on job",  dx:{xp:3,rep:3,rp:3} }
-      ]
-    },
-    {
-      prompt: "Street cred or zero heat?",
-      choices: [
-        { icon:"🏆", text:"Cred’s king",    dx:{rep:5,heat:5} },
-        { icon:"☂️", text:"Stay clean",     dx:{cash:5,xp:2} },
-        { icon:"☯️", text:"Balance is all", dx:{xp:4,rep:4,cash:4} }
-      ]
-    },
-    {
-      prompt: "Favorite late-night snack?",
-      choices: [
-        { icon:"🍕", text:"Greasy pizza",    dx:{rp:5,heat:2} },
-        { icon:"🍫", text:"Chocolate bars",  dx:{xp:2,rp:2} },
-        { icon:"🌮", text:"Tacos on the go", dx:{cash:3,rep:1} }
-      ]
-    },
-    {
-      prompt: "Your motto in one word?",
-      choices: [
-        { icon:"🚀", text:"Go!",            dx:{xp:5,rp:5} },
-        { icon:"💀", text:"Fearless",       dx:{heat:5,rep:3} },
-        { icon:"🧠", text:"Calculated",     dx:{rep:4,xp:2} }
-      ]
-    }
+    { prompt:"What’s your vice?", choices:[
+        {icon:"🔥",text:"Chaos over calm", dx:{xp:10,rp:2}},
+        {icon:"💼",text:"Business first",   dx:{rep:5,cash:5}},
+        {icon:"🌪️",text:"Chase the thrill", dx:{rp:8,heat:3}}
+    ]},
+    { prompt:"First deal: speed or stealth?", choices:[
+        {icon:"💨",text:"Full throttle",   dx:{rp:10,heat:5}},
+        {icon:"🌑",text:"Through shadows",  dx:{rep:5,xp:3}},
+        {icon:"⚖️",text:"Depends on job",  dx:{xp:3,rep:3,rp:3}}
+    ]},
+    { prompt:"Street cred or zero heat?", choices:[
+        {icon:"🏆",text:"Cred’s king",      dx:{rep:5,heat:5}},
+        {icon:"☂️",text:"Stay clean",       dx:{cash:5,xp:2}},
+        {icon:"☯️",text:"Balance is all",   dx:{xp:4,rep:4,cash:4}}
+    ]},
+    { prompt:"Favorite late-night snack?", choices:[
+        {icon:"🍕",text:"Greasy pizza",     dx:{rp:5,heat:2}},
+        {icon:"🍫",text:"Chocolate bars",   dx:{xp:2,rp:2}},
+        {icon:"🌮",text:"Tacos on the go",  dx:{cash:3,rep:1}}
+    ]},
+    { prompt:"Your motto in one word?", choices:[
+        {icon:"🚀",text:"Go!",              dx:{xp:5,rp:5}},
+        {icon:"💀",text:"Fearless",         dx:{heat:5,rep:3}},
+        {icon:"🧠",text:"Calculated",       dx:{rep:4,xp:2}}
+    ]}
   ];
 
-  const descEl  = document.getElementById('mission-desc');
-  const optsEl  = document.getElementById('mission-options');
-  const outEl   = document.getElementById('mission-outcome');
+  const descEl = document.getElementById('mission-desc');
+  const optsEl = document.getElementById('mission-options');
+  const outEl  = document.getElementById('mission-outcome');
 
   // ask question i
   function ask(i) {
@@ -125,20 +114,18 @@ document.addEventListener('DOMContentLoaded', () => {
     descEl.innerHTML = `<p>${q.prompt}</p>`;
     optsEl.innerHTML = '';
     outEl.innerText = '';
-
     q.choices.forEach(ch => {
       const btn = document.createElement('button');
-      btn.innerHTML = `<span style="font-size:1.5rem;line-height:1; margin-right:8px;">${ch.icon}</span>${ch.text}`;
+      btn.innerHTML = `<span style="font-size:1.5rem;margin-right:8px;">${ch.icon}</span>${ch.text}`;
       btn.style.cssText = `
         background:#222;color:#fff;border:2px solid #555;
         border-radius:6px;padding:0.75em;font-size:1rem;
         text-shadow:0 1px 2px rgba(0,0,0,0.8);cursor:pointer;
-        transition:background .2s,border-color .2s;
+        transition:background .2s;
       `;
       btn.onmouseover = () => btn.style.background = '#333';
       btn.onmouseout  = () => btn.style.background = '#222';
       btn.onclick = () => {
-        // apply delta
         Object.entries(ch.dx).forEach(([k,v]) => stats[k] = (stats[k]||0) + v);
         saveStats();
         logEvent(`Q${i+1}: ${ch.text}`);
@@ -149,23 +136,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // finish sequence
+  // finalize with combined rewards
   function finish() {
-    // disable any
     optsEl.querySelectorAll('button').forEach(b=>b.disabled=true);
-    logEvent('Prologue complete');
 
+    // mark mission done
+    if (!completed.includes('find-burner-os')) {
+      completed.push('find-burner-os');
+      saveCompleted();
+      logEvent('Mission complete: find-burner-os');
+    }
+
+    // mission bonus
+    const bonus = { xp:5, rep:1, rp:2, heat:0, cash:0 };
+    logEvent(`Bonus – +${bonus.xp} XP, +${bonus.rep} Rep, +${bonus.rp} RP`);
+
+    // total stats to apply
+    const total = {
+      xp:   stats.xp + bonus.xp,
+      rep:  stats.rep + bonus.rep,
+      rp:   stats.rp + bonus.rp,
+      heat: stats.heat + bonus.heat,
+      cash: stats.cash + bonus.cash
+    };
+
+    // update engine HUD
+    HT.stats.update(total);
+
+    logEvent(`Final Stats – XP:${total.xp}, Rep:${total.rep}, RP:${total.rp}, Heat:${total.heat}, Cash:${total.cash}`);
+
+    // show and redirect
     outEl.className = 'info';
     outEl.innerHTML = `
-      <p>Stats set — XP:${stats.xp} Rep:${stats.rep} RP:${stats.rp} Heat:${stats.heat} Cash:${stats.cash}</p>
+      <p><strong>Final Stats</strong><br>
+        XP: ${total.xp} |
+        Rep: ${total.rep} |
+        RP: ${total.rp} |
+        Heat: ${total.heat} |
+        Cash: $${total.cash}
+      </p>
       <p>Redirecting to Burner OS…</p>
-      <p><a href="https://hustletrap.blogspot.com/p/burner-os.html?m=1" style="color:#0af;">Click here if not redirected</a></p>
+      <p><a href="${osUrl}" style="color:#0af;">Click here if not redirected</a></p>
     `;
-    console.log('📲 Redirecting now…');
-    setTimeout(()=> window.location.replace('https://hustletrap.blogspot.com/p/burner-os.html?m=1'), 1800);
+    console.log('📲 Redirect to OS:', osUrl);
+    setTimeout(()=> window.location.replace(osUrl), 1800);
   }
 
-  // start
-  ask(0);
+  // register & start mission
+  HT.missions.register('find-burner-os', { run: ask.bind(null, 0) });
+  HT.missions.start('find-burner-os');
 });
 </script>
