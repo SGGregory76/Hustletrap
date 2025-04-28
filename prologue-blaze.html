@@ -1,4 +1,4 @@
-<!-- ===== PROLOGUE: Blaze’s Initiation (Complete Script) ===== -->
+<!-- ===== PROLOGUE: Blaze’s Initiation (with Jax Seeding) ===== -->
 <div id="mission-container" data-mission="find-burner-os" style="
   margin:16px auto;
   padding:16px;
@@ -50,23 +50,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const contactsKey  = 'contacts';
   const osUrl        = 'https://hustletrap.blogspot.com/p/burner-os.html?m=1';
 
-  // load or initialize storage
+  // load or init storage
   let stats     = JSON.parse(localStorage.getItem(statsKey)    || '{"xp":0,"rep":0,"rp":0,"heat":0,"cash":0}');
   let logArr    = JSON.parse(localStorage.getItem(logKey)      || '[]');
   let completed = JSON.parse(localStorage.getItem(compKey)     || '[]');
   let contacts  = JSON.parse(localStorage.getItem(contactsKey) || '[]');
 
-  // seed Blaze once
-  if (!contacts.includes('Blaze')) {
-    contacts.unshift('Blaze');
-    localStorage.setItem(contactsKey, JSON.stringify(contacts));
-    logArr.push(`[${new Date().toLocaleTimeString()}] Seeded contact: Blaze`);
-    localStorage.setItem(logKey, JSON.stringify(logArr));
-  }
-
   function saveStats()    { localStorage.setItem(statsKey, JSON.stringify(stats)); }
-  function saveLog()      { localStorage.setItem(logKey,    JSON.stringify(logArr)); }
-  function saveCompleted(){ localStorage.setItem(compKey,   JSON.stringify(completed)); }
+  function saveLog()      { localStorage.setItem(logKey,   JSON.stringify(logArr)); }
+  function saveCompleted(){ localStorage.setItem(compKey,  JSON.stringify(completed)); }
 
   function logEvent(msg) {
     const entry = `[${new Date().toLocaleTimeString()}] ${msg}`;
@@ -75,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log(entry);
   }
 
-  // the five questions
+  // five quiz questions
   const questions = [
     { prompt:"What’s your vice?", choices:[
         {icon:"🔥",text:"Chaos over calm", dx:{xp:10,rp:2}},
@@ -108,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const optsEl = document.getElementById('mission-options');
   const outEl  = document.getElementById('mission-outcome');
 
-  // ask question i
   function ask(i) {
     const q = questions[i];
     descEl.innerHTML = `<p>${q.prompt}</p>`;
@@ -136,11 +127,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // finalize with combined rewards
   function finish() {
     optsEl.querySelectorAll('button').forEach(b=>b.disabled=true);
 
-    // mark mission done
+    // mark Prologue complete
     if (!completed.includes('find-burner-os')) {
       completed.push('find-burner-os');
       saveCompleted();
@@ -151,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const bonus = { xp:5, rep:1, rp:2, heat:0, cash:0 };
     logEvent(`Bonus – +${bonus.xp} XP, +${bonus.rep} Rep, +${bonus.rp} RP`);
 
-    // total stats to apply
+    // combined stats
     const total = {
       xp:   stats.xp + bonus.xp,
       rep:  stats.rep + bonus.rep,
@@ -160,12 +150,17 @@ document.addEventListener('DOMContentLoaded', () => {
       cash: stats.cash + bonus.cash
     };
 
-    // update engine HUD
+    // seed contacts
+    HT.contacts.add('Blaze');
+    HT.contacts.add('Jax');
+    logEvent('Seeded contacts: Blaze, Jax');
+
+    // update HUD and unlock next mission
     HT.stats.update(total);
 
     logEvent(`Final Stats – XP:${total.xp}, Rep:${total.rep}, RP:${total.rp}, Heat:${total.heat}, Cash:${total.cash}`);
 
-    // show and redirect
+    // display & redirect
     outEl.className = 'info';
     outEl.innerHTML = `
       <p><strong>Final Stats</strong><br>
@@ -182,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(()=> window.location.replace(osUrl), 1800);
   }
 
-  // register & start mission
+  // register & start
   HT.missions.register('find-burner-os', { run: ask.bind(null, 0) });
   HT.missions.start('find-burner-os');
 });
