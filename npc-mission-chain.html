@@ -1,0 +1,139 @@
+<div id="npc-mission" style="max-width:500px;margin:20px auto;padding:16px;background:#111;border:2px solid #333;border-radius:10px;color:#eee;font-family:Roboto,sans-serif;">
+  <h2 id="mission-title" style="background:#222;padding:12px;border-radius:8px;font-size:1.5rem;text-align:center;position:relative;margin-bottom:16px;">
+    <span style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);">🧠</span>
+    Maya's First Contact
+  </h2>
+
+  <div id="mission-content" style="margin-bottom:12px;"></div>
+  <div id="mission-options" style="margin-bottom:12px;"></div>
+  <div id="mission-result" style="text-align:center;background:#333;border-radius:6px;padding:10px;"></div>
+</div>
+
+<script>
+(function(){
+  const NPC_ID = "maya-initiation-chain";
+  const SK = "playerStats";
+  const CK = "completedMissions";
+  const NK = "npcData_maya";
+  const OS_URL = "https://hustletrap.blogspot.com/p/burner-os.html?m=1";
+
+  let stats = JSON.parse(localStorage.getItem(SK) || "{}");
+  let completed = JSON.parse(localStorage.getItem(CK) || "[]");
+  let npc = JSON.parse(localStorage.getItem(NK) || "{}");
+
+  stats.xp = stats.xp || 0;
+  stats.rep = stats.rep || 0;
+  stats.rp = stats.rp || 0;
+  stats.heat = stats.heat || 0;
+  stats.cash = stats.cash || 0;
+  npc.loyalty = npc.loyalty || 50;
+  npc.trust = npc.trust || 0;
+
+  if (completed.includes(NPC_ID)) {
+    document.getElementById("mission-content").innerHTML = `<p>You’ve already completed Maya’s introduction.</p>`;
+    document.getElementById("mission-options").innerHTML = "";
+    document.getElementById("mission-result").innerHTML = `<p><a href="${OS_URL}" style="color:#0af;">→ Return to Burner OS</a></p>`;
+    return;
+  }
+
+  const questions = [
+    {
+      text: "Maya eyes your clothes. 'You dress like someone who just woke up broke.'",
+      choices: [
+        { icon:"🧢", text:"Laugh it off", delta:{rep:2, xp:2}, npc:{loyalty:2} },
+        { icon:"😐", text:"Say nothing",  delta:{xp:1}, npc:{trust:1} },
+        { icon:"🖕", text:"Snap back at her", delta:{heat:1}, npc:{loyalty:-3} }
+      ]
+    },
+    {
+      text: "'What do you know about weed?' she asks.",
+      choices: [
+        { icon:"🌿", text:"I grow", delta:{xp:3, rp:2}, npc:{trust:2} },
+        { icon:"🚬", text:"I smoke", delta:{xp:1}, npc:{loyalty:1} },
+        { icon:"🤷", text:"Not much", delta:{rep:-1}, npc:{trust:-1} }
+      ]
+    },
+    {
+      text: "'Suppose I front you a few grams — what would you do?'",
+      choices: [
+        { icon:"💸", text:"Flip it fast", delta:{rep:2, cash:10}, npc:{trust:1} },
+        { icon:"💰", text:"Hold for better price", delta:{rp:3}, npc:{loyalty:2} },
+        { icon:"🔥", text:"Smoke it", delta:{heat:2}, npc:{loyalty:-5} }
+      ]
+    },
+    {
+      text: "'Snitches get... what?' she says, half-smirking.",
+      choices: [
+        { icon:"🔪", text:"Stitches.", delta:{rep:3, xp:2}, npc:{loyalty:3} },
+        { icon:"🚔", text:"Protection.", delta:{heat:3}, npc:{trust:-3} },
+        { icon:"👀", text:"Depends who's asking.", delta:{xp:1, rp:1}, npc:{trust:1} }
+      ]
+    },
+    {
+      text: "'Final question: loyalty or money?'",
+      choices: [
+        { icon:"🤝", text:"Loyalty", delta:{rep:2}, npc:{loyalty:5} },
+        { icon:"💵", text:"Money", delta:{cash:20}, npc:{trust:2} },
+        { icon:"🤐", text:"No comment", delta:{rp:1}, npc:{} }
+      ]
+    }
+  ];
+
+  let currentQ = 0;
+  let totalDelta = { xp: 0, rep: 0, rp: 0, heat: 0, cash: 0 };
+  let totalNPC = { loyalty: 0, trust: 0 };
+
+  const content = document.getElementById("mission-content");
+  const options = document.getElementById("mission-options");
+  const result = document.getElementById("mission-result");
+
+  function renderQuestion() {
+    const q = questions[currentQ];
+    content.innerHTML = `<p>${q.text}</p>`;
+    options.innerHTML = "";
+
+    q.choices.forEach(choice => {
+      const btn = document.createElement("button");
+      btn.style = "background:#222;color:#fff;border:2px solid #555;border-radius:6px;padding:10px;width:100%;font-size:1rem;margin-top:8px;cursor:pointer;";
+      btn.innerHTML = `<span style="font-size:1.2rem;">${choice.icon}</span> ${choice.text}`;
+      btn.onclick = () => {
+        for (let k in choice.delta) {
+          stats[k] = (stats[k] || 0) + choice.delta[k];
+          totalDelta[k] = (totalDelta[k] || 0) + choice.delta[k];
+        }
+        for (let k in choice.npc) {
+          npc[k] = (npc[k] || 0) + choice.npc[k];
+          totalNPC[k] = (totalNPC[k] || 0) + choice.npc[k];
+        }
+
+        currentQ++;
+        if (currentQ < questions.length) {
+          renderQuestion();
+        } else {
+          finishMission();
+        }
+      };
+      options.appendChild(btn);
+    });
+  }
+
+  function finishMission() {
+    localStorage.setItem(SK, JSON.stringify(stats));
+    localStorage.setItem(NK, JSON.stringify(npc));
+    completed.push(NPC_ID);
+    localStorage.setItem(CK, JSON.stringify(completed));
+
+    content.innerHTML = "<p><strong>Mission Complete!</strong></p>";
+    options.innerHTML = "";
+    result.innerHTML = `
+      <p><strong>Player Gains:</strong><br>
+      XP: +${totalDelta.xp||0} | REP: +${totalDelta.rep||0} | RP: +${totalDelta.rp||0} | Heat: +${totalDelta.heat||0} | Cash: +$${totalDelta.cash||0}</p>
+      <p><strong>Maya Adjustments:</strong><br>
+      Loyalty: ${totalNPC.loyalty || 0} | Trust: ${totalNPC.trust || 0}</p>
+      <p><a href="${OS_URL}" style="color:#0af;">→ Return to Burner OS</a></p>
+    `;
+  }
+
+  renderQuestion();
+})();
+</script>
