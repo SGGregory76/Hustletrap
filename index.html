@@ -2,81 +2,201 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Burner OS</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Burner OS - Hustle Trap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <style>
-    body {
-      background:#000;
-      font-family: 'Roboto', sans-serif;
-      margin:0; padding:0;
+    /* Base Styles */
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      width: 100%;
+      min-height: 100%;
+      font-family: 'Segoe UI', sans-serif;
       display: flex;
       justify-content: center;
+      align-items: flex-start;
+      padding-top: 30px; /* Push phone down slightly */
+    }
+
+    /* Phone Shell */
+    .screen-wrap {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .phone-ui {
+      width: 90vw;
+      max-width: 300px;
+      min-height: 580px;
+      background: #121212;
+      border: 2px solid #444;
+      border-radius: 20px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .phone-header {
+      background: #111;
+      color: #ccc;
+      padding: 3% 0;
+      text-align: center;
+      font-size: 5vw;
+      font-weight: bold;
+      border-bottom: 1px solid #444;
+    }
+
+    /* App Grid */
+    .app-grid {
+      background: #181818;
+      padding: 5%;
+      flex-grow: 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 5%;
+    }
+
+    .app-icon {
+      background: #1f1f1f;
+      border: 1px solid #444;
+      border-radius: 12px;
+      padding: 8px;
+      text-align: center;
+      color: #ccc;
+      font-size: 3.5vw;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s, transform 0.3s;
+    }
+
+    .app-icon:hover {
+      background: #2c2c2c;
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+    .icon {
+      font-size: 5vw;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    /* HUD Strip */
+    .hud-strip {
+      background: #111;
+      border-top: 1px solid #333;
+      border-bottom: 1px solid #333;
+      margin: 8px 5%;
+      padding: 6px 0;
+      color: #ccc;
+      font-size: 3vw;
+      text-align: center;
+      display: flex;
+      justify-content: space-around;
       align-items: center;
-      height: 100vh;
     }
-    #phone-shell {
-      background:#111;
-      color:#eee;
-      width:360px;
-      padding:16px;
-      border-radius:20px;
-      border:2px solid #333;
-      box-shadow: 0 0 20px rgba(0,0,0,0.7);
+
+    .hud-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
     }
-    #phone-shell h2 {
-      text-align:center;
-      background:#222;
-      padding:10px;
-      border-radius:10px;
-      margin-bottom:16px;
-    }
-    .hud-section {
-      background:#222;
-      padding:10px;
-      margin-bottom:12px;
-      border-radius:10px;
-      text-align:center;
-    }
-    .hud-title {
-      font-size:1rem;
-      margin-bottom:8px;
-      color:#6cf;
+
+    /* App Content */
+    iframe {
+      flex-grow: 1;
+      width: 100%;
+      min-height: 300px;
+      border: none;
+      background: #0a0a0a;
+      overflow: auto;
     }
   </style>
+
 </head>
 
 <body>
 
-<div id="phone-shell">
-  <h2>📱 Burner OS</h2>
+<div class="screen-wrap">
+  <div class="phone-ui" id="mainPhone">
 
-  <div class="hud-section" id="hud-stats">
-    <div class="hud-title">Player Stats</div>
-    <div>Loading...</div>
+    <!-- Burner OS Title -->
+    <div class="phone-header">Burner OS</div>
+
+    <!-- App Buttons -->
+    <div class="app-grid" id="appGrid">
+      <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/missions.html?m=1')">
+        <span class="icon">📋</span><div>Missions</div>
+      </div>
+      <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/contacts.html?m=1')">
+        <span class="icon">👥</span><div>Contacts</div>
+      </div>
+      <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/inventory.html?m=1')">
+        <span class="icon">🎒</span><div>Inventory</div>
+      </div>
+      <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/crafting.html?m=1')">
+        <span class="icon">⚗️</span><div>Crafting</div>
+      </div>
+      <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/map.html?m=1')">
+        <span class="icon">🗺️</span><div>Map</div>
+      </div>
+      <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/log.html?m=1')">
+        <span class="icon">🧾</span><div>Log</div>
+      </div>
+    </div>
+
+    <!-- HUD Strip -->
+    <div class="hud-strip" id="hud-strip">
+      <div class="hud-item">⭐ <span id="xp">0</span></div>
+      <div class="hud-item">🤝 <span id="rep">0</span></div>
+      <div class="hud-item">🔬 <span id="rp">0</span></div>
+      <div class="hud-item">🔥 <span id="heat">0</span></div>
+      <div class="hud-item">💰 <span id="cash">0</span></div>
+    </div>
+
+    <!-- App Frame Content -->
+    <iframe id="appFrame"></iframe>
+
   </div>
-
-  <div class="hud-section" id="hud-contacts">
-    <div class="hud-title">Contacts</div>
-    <div>Loading...</div>
-  </div>
-
-  <div class="hud-section" id="hud-missions">
-    <div class="hud-title">Missions</div>
-    <div>Loading...</div>
-  </div>
-
-  <div class="hud-section" id="hud-log">
-    <div class="hud-title">Log</div>
-    <div>Loading...</div>
-  </div>
-
 </div>
 
-<!-- Engines -->
-<script src="hud-engine.js"></script>
-<script src="contacts-engine.js"></script>
-<script src="missions-engine.js"></script>
-<script src="log-engine.js"></script>
+<script>
+/* Security: Block nested Burner OS */
+if (window !== window.top && window.location.href.includes("burner-os")) {
+  document.body.innerHTML = "<div style='color:#f44;text-align:center;padding:40px;font-size:18px;'>Burner OS cannot run inside another Burner OS tab.</div>";
+  throw new Error("Blocked nested Burner OS iframe.");
+}
+
+/* Page Loading System */
+function loadPage(url) {
+  document.getElementById("appFrame").src = url;
+}
+
+/* HUD Stat Loader */
+(function(){
+  const SK = 'playerStats';
+  let stats = JSON.parse(localStorage.getItem(SK) || '{}');
+
+  stats.xp = stats.xp || 0;
+  stats.rep = stats.rep || 0;
+  stats.rp = stats.rp || 0;
+  stats.heat = stats.heat || 0;
+  stats.cash = stats.cash || 0;
+
+  localStorage.setItem(SK, JSON.stringify(stats));
+
+  document.getElementById('xp').innerText = stats.xp;
+  document.getElementById('rep').innerText = stats.rep;
+  document.getElementById('rp').innerText = stats.rp;
+  document.getElementById('heat').innerText = stats.heat;
+  document.getElementById('cash').innerText = `$${stats.cash}`;
+})();
+</script>
 
 </body>
 </html>
