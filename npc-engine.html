@@ -1,0 +1,92 @@
+<script>
+// NPC Engine Core
+
+class NPC {
+  constructor(id, name) {
+    this.id = id;
+    this.name = name;
+    this.loyalty = 70;
+    this.trust = 60;
+    this.greed = 40;
+    this.heatRisk = 20;
+    this.drugAffinity = {
+      weed: 10,
+      coke: -10,
+      xanax: 5
+    };
+    this.currentDrug = null;
+    this.mood = "neutral";
+  }
+
+  save() {
+    localStorage.setItem(`npc_${this.id}`, JSON.stringify(this));
+  }
+
+  static load(id) {
+    const data = JSON.parse(localStorage.getItem(`npc_${id}`));
+    if (data) {
+      const npc = new NPC(data.id, data.name);
+      Object.assign(npc, data);
+      npc.updateMood();
+      return npc;
+    } else {
+      const npc = new NPC(id, "Unknown");
+      npc.save();
+      return npc;
+    }
+  }
+
+  updateMood() {
+    if (this.loyalty > 70 && this.trust > 70) {
+      this.mood = "loyal";
+    } else if (this.trust < 40) {
+      this.mood = "untrusting";
+    } else if (this.heatRisk > 70) {
+      this.mood = "sketchy";
+    } else {
+      this.mood = "neutral";
+    }
+  }
+
+  giveDrug(drugName) {
+    const affinity = this.drugAffinity[drugName] || 0;
+    this.loyalty += affinity;
+    this.trust += affinity / 2;
+    this.greed -= 2;
+    this.currentDrug = drugName;
+    this.updateMood();
+    this.save();
+  }
+
+  sellDrug() {
+    this.greed += 5;
+    this.loyalty -= 2;
+    this.updateMood();
+    this.save();
+  }
+
+  interact(action) {
+    if (action === "talk") {
+      this.loyalty += 1;
+      this.trust += 1;
+      this.updateMood();
+      this.save();
+    }
+  }
+
+  betrayalChance() {
+    return this.heatRisk + (100 - this.loyalty);
+  }
+
+  checkForEvent() {
+    if (this.loyalty < 30 && this.heatRisk > 60) {
+      return "betrayal";
+    } else if (this.trust > 80) {
+      return "reward";
+    } else if (this.heatRisk > 80) {
+      return "heatWarning";
+    }
+    return null;
+  }
+}
+</script>
