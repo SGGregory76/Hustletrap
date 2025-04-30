@@ -1,0 +1,60 @@
+<div style="max-width:500px;margin:0 auto;padding:16px;background:#111;border:2px solid #333;border-radius:12px;font-family:Roboto,sans-serif;color:#eee;">
+  <h2 style="text-align:center;margin-bottom:20px;background:#222;padding:12px;border-radius:8px;">Mission Hub</h2>
+
+  <div id="mission-list" style="display:grid;grid-template-columns:1fr;gap:12px;"></div>
+</div>
+
+<script>
+(function(){
+  const CK = "completedMissions";
+  const SK = "playerStats";
+  const completed = JSON.parse(localStorage.getItem(CK) || "[]");
+  const stats = JSON.parse(localStorage.getItem(SK) || "{}");
+  const flags = (JSON.parse(localStorage.getItem("npcData_maya") || '{}').flags) || {};
+
+  const missions = [
+    {
+      id: "maya-initiation-v2",
+      name: "Maya's First Contact",
+      icon: "🎒",
+      url: "https://hustletrap.blogspot.com/2025/04/maya-initiation.html?m=1",
+      requires: [],
+      preview: "Meet Maya and prove you're worth her risk."
+    },
+    {
+      id: "rico-intro",
+      name: "Rico’s Test",
+      icon: "💼",
+      url: "https://hustletrap.blogspot.com/2025/04/rico-initiation.html?m=1",
+      requires: ["maya_loyal"],
+      preview: "Rico watches how you handled Maya. Loyalty matters."
+    },
+    {
+      id: "blaze-legacy",
+      name: "Blaze's Legacy",
+      icon: "🔥",
+      url: "https://hustletrap.blogspot.com/2025/04/blaze-initiation.html?m=1",
+      requires: ["picked_street"],
+      preview: "Blaze only deals with street soldiers."
+    }
+  ];
+
+  const list = document.getElementById("mission-list");
+  missions.forEach(m => {
+    const done = completed.includes(m.id);
+    const locked = m.requires.some(flag => !flags[flag]);
+
+    const box = document.createElement("div");
+    box.style = `background:#1a1a1a;border:1px solid ${done ? '#0f0' : locked ? '#555' : '#999'};border-radius:10px;padding:12px;cursor:${locked ? 'not-allowed' : 'pointer'};opacity:${locked ? 0.4 : 1};`;
+    box.innerHTML = `
+      <div style="font-size:1.4rem;margin-bottom:6px;">${m.icon} <strong>${m.name}</strong></div>
+      <div style="font-size:0.9rem;color:#aaa;margin-bottom:8px;">${m.preview}</div>
+      <div style="font-size:0.8rem;color:${done ? '#0f0' : locked ? '#888' : '#0af'};">
+        ${done ? "✔ Completed" : locked ? "🔒 Locked" : "→ Tap to Start"}
+      </div>
+    `;
+    if (!locked && !done) box.onclick = () => window.location.href = m.url;
+    list.appendChild(box);
+  });
+})();
+</script>
