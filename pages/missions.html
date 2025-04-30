@@ -1,177 +1,128 @@
-<style>
-  .mission-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 10px;
-  }
+<!-- Missions Hub -->
+<div id="mission-hub" style="max-width:500px;margin:20px auto;padding:16px;
+     background:#111;border:2px solid #333;border-radius:12px;
+     font-family:Roboto,sans-serif;color:#eee;">
+  <h2 style="text-align:center;margin-bottom:20px;
+             background:#222;padding:12px;border-radius:8px;">
+    Missions
+  </h2>
 
-  .mission-card {
-    background: #121212;
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 10px;
-    color: #f1f1f1;
-  }
-
-  .mission-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-  }
-
-  .mission-icon {
-    font-size: 1.4em;
-  }
-
-  .mission-title {
-    font-size: 1.1em;
-    font-weight: bold;
-  }
-
-  .mission-desc {
-    font-size: 0.9em;
-    margin: 4px 0;
-  }
-
-  .mission-status {
-    font-size: 0.8em;
-    color: #aaa;
-    margin-bottom: 6px;
-  }
-
-  .mission-btn-sm {
-    font-size: 0.8em;
-    padding: 6px 12px;
-    background: #222;
-    color: #fff;
-    border: 1px solid #555;
-    border-radius: 6px;
-    cursor: pointer;
-    width: fit-content;
-  }
-
-  .mission-btn-sm.locked {
-    background: #111;
-    color: #666;
-    border: 1px solid #333;
-    cursor: not-allowed;
-  }
-
-  .mission-btn-sm:hover:not(.locked) {
-    background: #333;
-  }
-</style>
-
-<div class="mission-grid">
-
-  <!-- Blaze -->
-  <div class="mission-card">
-    <div class="mission-top">
-      <div class="mission-icon">🔥</div>
-      <div class="mission-title">Blaze - Prologue</div>
-    </div>
-    <div class="mission-desc">Meet Blaze to score your first drop and unlock your Burner OS.</div>
-    <div class="mission-status">Status: <span id="status-blaze">Unlocked</span></div>
-    <button class="mission-btn-sm" id="btn-blaze" onclick="location.href='https://hustletrap.blogspot.com/2025/04/blaze-mission-prologue.html?m=1'">Start Mission</button>
+  <!-- Stat Icons -->
+  <div style="display:flex;justify-content:space-around;margin-bottom:16px;
+              padding:8px;background:#1a1a1a;border-radius:8px;border:1px solid #333;">
+    <div title="XP">⭐ XP</div>
+    <div title="REP">📢 REP</div>
+    <div title="RP">🧪 RP</div>
+    <div title="Heat">🔥 Heat</div>
+    <div title="Cash">💵 Cash</div>
   </div>
 
-  <!-- Maya -->
-  <div class="mission-card">
-    <div class="mission-top">
-      <div class="mission-icon">🌸</div>
-      <div class="mission-title">Maya</div>
-    </div>
-    <div class="mission-desc">Earn her loyalty to unlock deeper trust paths and new drops.</div>
-    <div class="mission-status">Status: <span id="status-maya">Locked</span></div>
-    <button class="mission-btn-sm locked" id="btn-maya" disabled>Locked – Requires Blaze Complete</button>
-  </div>
+  <!-- Mission List -->
+  <div id="mission-list" style="display:grid;gap:12px;">
 
-  <!-- Rico -->
-  <div class="mission-card">
-    <div class="mission-top">
-      <div class="mission-icon">🦂</div>
-      <div class="mission-title">Rico</div>
+    <!-- Blaze (always unlocked) -->
+    <div class="mission-card unlocked" style="display:flex;align-items:center;
+         padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;">
+      <div style="font-size:2rem;margin-right:12px;">🔥</div>
+      <div style="flex:1;">
+        <strong>Blaze’s Prologue</strong><br>
+        <small style="color:#aaa;">Your initiation mission</small><br>
+        <small style="color:#0af;">Specialty: 💊 Xanny Bars</small>
+      </div>
+      <a href="/2025/04/blaze-initiation.html?m=1" class="mission-btn"
+         style="background:#0af;color:#111;padding:8px 12px;border-radius:6px;
+                text-decoration:none;">Start</a>
     </div>
-    <div class="mission-desc">Requires Maya’s loyalty before Rico gives you any respect.</div>
-    <div class="mission-status">Status: <span id="status-rico">Locked</span></div>
-    <button class="mission-btn-sm locked" id="btn-rico" disabled>Locked – Requires Maya Loyal</button>
-  </div>
 
-  <!-- Skye -->
-  <div class="mission-card">
-    <div class="mission-top">
-      <div class="mission-icon">💎</div>
-      <div class="mission-title">Skye</div>
+    <!-- Maya (locked until Blaze complete) -->
+    <div id="maya-mission" class="mission-card locked" style="display:flex;align-items:center;
+         padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.6;">
+      <div style="font-size:2rem;margin-right:12px;">🎒</div>
+      <div style="flex:1;">
+        <strong>Maya’s First Contact</strong><br>
+        <small style="color:#aaa;">Complete Blaze’s mission to unlock</small><br>
+        <small style="color:#0af;">Specialty: 🌿 Dub Sacks</small>
+      </div>
+      <div class="locked-icon" style="font-size:1.5rem;color:#f44;">🔒</div>
+      <a href="/2025/04/maya-initiation.html?m=1" class="mission-btn disabled"
+         style="display:none;background:#555;color:#888;padding:8px 12px;border-radius:6px;
+                text-decoration:none;cursor:not-allowed;">Start</a>
     </div>
-    <div class="mission-desc">Specialist in rare blends. Higher REP required to connect.</div>
-    <div class="mission-status">Status: <span id="status-skye">Locked</span></div>
-    <button class="mission-btn-sm locked" id="btn-skye" disabled>Locked – Requires REP ≥ 30</button>
-  </div>
 
-  <!-- Diesel -->
-  <div class="mission-card">
-    <div class="mission-top">
-      <div class="mission-icon">⚗️</div>
-      <div class="mission-title">Diesel</div>
+    <!-- Rico (locked until Maya complete) -->
+    <div id="rico-mission" class="mission-card locked" style="display:flex;align-items:center;
+         padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.6;">
+      <div style="font-size:2rem;margin-right:12px;">💼</div>
+      <div style="flex:1;">
+        <strong>Rico’s Trial</strong><br>
+        <small style="color:#aaa;">Requires Maya’s loyalty</small><br>
+        <small style="color:#0af;">Specialty: 💊 Percs</small>
+      </div>
+      <div class="locked-icon" style="font-size:1.5rem;color:#f44;">🔒</div>
+      <a href="/2025/04/rico-initiation.html?m=1" class="mission-btn disabled"
+         style="display:none;background:#555;color:#888;padding:8px 12px;border-radius:6px;
+                text-decoration:none;cursor:not-allowed;">Start</a>
     </div>
-    <div class="mission-desc">Only the most experienced find Diesel’s hidden lab.</div>
-    <div class="mission-status">Status: <span id="status-diesel">Locked</span></div>
-    <button class="mission-btn-sm locked" id="btn-diesel" disabled>Locked – Requires XP ≥ 100</button>
-  </div>
 
-  <!-- Jax -->
-  <div class="mission-card">
-    <div class="mission-top">
-      <div class="mission-icon">♠️</div>
-      <div class="mission-title">Jax</div>
+    <!-- Skye (Coming Soon) -->
+    <div class="mission-card coming-soon" style="display:flex;align-items:center;
+         padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.4;">
+      <div style="font-size:2rem;margin-right:12px;">🧬</div>
+      <div style="flex:1;">
+        <strong>Skye’s Chem Lab</strong><br>
+        <small style="color:#aaa;">Coming Soon</small><br>
+        <small style="color:#0af;">Specialty: 🧪 Ero (Molly)</small>
+      </div>
+      <div style="font-size:1.5rem;color:#666;">⏳</div>
     </div>
-    <div class="mission-desc">Final connect. Choose wisely, your empire depends on it.</div>
-    <div class="mission-status">Status: <span id="status-jax">Locked</span></div>
-    <button class="mission-btn-sm locked" id="btn-jax" disabled>Locked – Requires Heat ≥ 40</button>
-  </div>
 
+    <!-- Diesel (Coming Soon) -->
+    <div class="mission-card coming-soon" style="display:flex;align-items:center;
+         padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.4;">
+      <div style="font-size:2rem;margin-right:12px;">💉</div>
+      <div style="flex:1;">
+        <strong>Diesel’s Logistics</strong><br>
+        <small style="color:#aaa;">Coming Soon</small><br>
+        <small style="color:#0af;">Specialty: 🚬 Sizzurp</small>
+      </div>
+      <div style="font-size:1.5rem;color:#666;">⏳</div>
+    </div>
+
+    <!-- Jax (Coming Soon) -->
+    <div class="mission-card coming-soon" style="display:flex;align-items:center;
+         padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.4;">
+      <div style="font-size:2rem;margin-right:12px;">💊</div>
+      <div style="flex:1;">
+        <strong>Jax’s Operation</strong><br>
+        <small style="color:#aaa;">Coming Soon</small><br>
+        <small style="color:#0af;">Specialty: 💉 M30s</small>
+      </div>
+      <div style="font-size:1.5rem;color:#666;">⏳</div>
+    </div>
+
+  </div>
 </div>
 
 <script>
-// Mission status controller
-document.addEventListener("DOMContentLoaded", function () {
-  const flags = JSON.parse(localStorage.getItem("game_flags") || "{}");
+(function(){
+  const completed = JSON.parse(localStorage.getItem("completedMissions")||"[]");
 
-  const missions = {
-    blaze: { unlocked: true, requirement: "" },
-    maya: { unlocked: !!flags["blaze_done"], requirement: "Requires Blaze Complete" },
-    rico: { unlocked: !!flags["maya_loyal"], requirement: "Requires Maya Loyal" },
-    skye: { unlocked: flags["rep"] >= 30, requirement: "Requires REP ≥ 30" },
-    diesel: { unlocked: flags["xp"] >= 100, requirement: "Requires XP ≥ 100" },
-    jax: { unlocked: flags["heat"] >= 40, requirement: "Requires Heat ≥ 40" }
-  };
+  if (completed.includes("blaze-initiation")) {
+    const card = document.getElementById("maya-mission");
+    card.style.opacity = 1;
+    card.querySelector(".locked-icon").style.display = "none";
+    const btn = card.querySelector(".mission-btn");
+    btn.style.display = "inline-block";
+    btn.classList.remove("disabled");
+  }
 
-  Object.keys(missions).forEach(npc => {
-    const statusEl = document.getElementById(`status-${npc}`);
-    const button = document.getElementById(`btn-${npc}`);
-    const isDone = !!flags[`${npc}_done`];
-    const unlocked = missions[npc].unlocked;
-
-    if (!statusEl || !button) return;
-
-    if (isDone) {
-      statusEl.textContent = "Completed";
-      button.disabled = true;
-      button.classList.add("locked");
-      button.textContent = "Completed";
-    } else if (unlocked) {
-      statusEl.textContent = "Unlocked";
-      button.disabled = false;
-      button.classList.remove("locked");
-      button.textContent = "Start Mission";
-    } else {
-      statusEl.textContent = "Locked";
-      button.disabled = true;
-      button.classList.add("locked");
-      button.textContent = `Locked – ${missions[npc].requirement}`;
-    }
-  });
-});
+  if (completed.includes("maya-initiation")) {
+    const card = document.getElementById("rico-mission");
+    card.style.opacity = 1;
+    card.querySelector(".locked-icon").style.display = "none";
+    const btn = card.querySelector(".mission-btn");
+    btn.style.display = "inline-block";
+    btn.classList.remove("disabled");
+  }
+})();
 </script>
