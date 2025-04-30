@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contacts</title>
+  <style>
+    body {
+      background: #000;
+      color: #eee;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .phone-ui {
+      width: 340px;
+      background: #121212;
+      border: 2px solid #444;
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0, 255, 150, 0.25);
+      overflow: hidden;
+      padding: 16px;
+    }
+    .phone-header {
+      background: #111;
+      padding: 14px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      color: #fff;
+      border-bottom: 1px solid #444;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      padding-top: 16px;
+    }
+    .contact-icon {
+      background: #1f1f1f;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      color: #ccc;
+      transition: background 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-icon:hover {
+      background: #2c2c2c;
+    }
+    .icon {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .label {
+      font-size: 13px;
+    }
+    .ribbon {
+      width: 120px;
+      background: red;
+      color: #fff;
+      font-size: 10px;
+      text-align: center;
+      font-weight: bold;
+      position: absolute;
+      top: 10px;
+      right: -30px;
+      transform: rotate(45deg);
+      box-shadow: 0 0 4px rgba(0,0,0,0.5);
+    }
+    .loyalty-bar {
+      width: 100%;
+      height: 6px;
+      margin-top: 6px;
+      border-radius: 4px;
+      background: #333;
+    }
+    .loyalty-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+    .drug-info {
+      font-size: 11px;
+      color: #aaa;
+      margin-top: 4px;
+      line-height: 1.2;
+    }
+    .drug-icon {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      background: #0af;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-ui">
+    <div class="phone-header">Contacts</div>
+    <div id="contacts-list" class="contact-grid"></div>
+  </div>
+
+  <script>
+    (function () {
+      const contacts = {
+        blaze:  { icon: "🔥", name: "Blaze",  link: "https://hustletrap.blogspot.com/2025/04/blaze.html?m=1", label: "Start Here", drug: "Weed", type: "Psychedelics" },
+        maya:   { icon: "🎒", name: "Maya",   link: "https://hustletrap.blogspot.com/2025/04/maya.html?m=1",  label: "New Drop", drug: "Xanax", type: "Depressants" },
+        rico:   { icon: "💼", name: "Rico",   link: "https://hustletrap.blogspot.com/2025/04/rico.html?m=1",  label: "Unlocked Trial", drug: "Adderall", type: "Stimulants" },
+        skye:   { icon: "🧬", name: "Skye",   link: "#", label: "", drug: "LSD", type: "Psychedelics" },
+        diesel: { icon: "🛠️", name: "Diesel", link: "#", label: "", drug: "Steroids", type: "Enhancers" }
+      };
+
+      const unlocked = JSON.parse(localStorage.getItem("contacts_unlocked") || "[]");
+      const visited = JSON.parse(localStorage.getItem("contacts_visited") || "[]");
+      const container = document.getElementById("contacts-list");
+
+      if (unlocked.length === 0) {
+        container.innerHTML = "<p style='grid-column:span 3;text-align:center;color:#888;'>No contacts unlocked yet.</p>";
+        return;
+      }
+
+      unlocked.forEach(id => {
+        const c = contacts[id];
+        if (!c) return;
+
+        let npc = JSON.parse(localStorage.getItem("npcData_" + id) || '{}');
+        let loyalty = npc.loyalty || 0;
+        let barColor = loyalty >= 70 ? '#0f0' : loyalty >= 30 ? '#ff0' : '#f00';
+
+        const div = document.createElement("div");
+        div.className = "contact-icon";
+        div.onclick = () => {
+          let visitedNow = JSON.parse(localStorage.getItem("contacts_visited") || "[]");
+          if (!visitedNow.includes(id)) {
+            visitedNow.push(id);
+            localStorage.setItem("contacts_visited", JSON.stringify(visitedNow));
+          }
+          window.location.href = c.link;
+        };
+
+
+
+        const showBadge = !visited.includes(id) && c.label;
+        const ribbon = showBadge ? `<div class='ribbon'>${c.label}</div>` : "";
+        const loyaltyBar = `<div class='loyalty-bar'><div class='loyalty-fill' style='width:${loyalty}%;background:${barColor}'></div></div>`;
+        const drugInfo = `<div class='drug-info'><span class='drug-icon'></span>${c.drug}<br><span style='font-size:10px;'>Deals In: ${c.type}</span></div>`;
+
+        div.innerHTML = `${ribbon}<span class='icon'>${c.icon}</span><span class='label'>${c.name}</span>${loyaltyBar}${drugInfo}`;
+        container.appendChild(div);
+      });
+    })();
+  </script>
+</body>
+</html>
