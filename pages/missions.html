@@ -1,61 +1,99 @@
+<!-- missions.html -->
 <div style="max-width:500px;margin:0 auto;padding:16px;background:#111;border:2px solid #333;border-radius:12px;font-family:Roboto,sans-serif;color:#eee;">
-  <h2 style="text-align:center;margin-bottom:20px;background:#222;padding:12px;border-radius:8px;">Mission Hub</h2>
-
+  <h2 style="text-align:center;margin-bottom:20px;background:#222;padding:12px;border-radius:8px;">Missions</h2>
+  <div id="mission-summary" style="text-align:center;font-size:0.9rem;color:#aaa;margin-bottom:12px;"></div>
   <div id="mission-list" style="display:grid;grid-template-columns:1fr;gap:12px;"></div>
 </div>
 
 <script>
-(function(){
+(function() {
   const CK = "completedMissions";
-  const SK = "playerStats";
   const completed = JSON.parse(localStorage.getItem(CK) || "[]");
-  const stats = JSON.parse(localStorage.getItem(SK) || "{}");
-  const flags = (JSON.parse(localStorage.getItem("npcData_maya") || '{}').flags) || {};
+  const flags = {
+    ...(JSON.parse(localStorage.getItem("npcData_maya") || '{}').flags || {}),
+    ...(JSON.parse(localStorage.getItem("npcData_rico") || '{}').flags || {}),
+    ...(JSON.parse(localStorage.getItem("npcData_blaze") || '{}').flags || {})
+  };
 
   const missions = [
     {
-      id: "maya-initiation-v2",
-      name: "Maya's First Contact",
-      icon: "🎒",
-      url: "https://hustletrap.blogspot.com/2025/04/maya-initiation.html?m=1",
-      requires: [],
-      preview: "Meet Maya and prove you're worth her risk."
-    },
-    {
-      id: "rico-intro",
-      name: "Rico’s Test",
-      icon: "💼",
-      url: "https://hustletrap.blogspot.com/2025/04/rico-initiation.html?m=1",
-      requires: ["maya_loyal"],
-      preview: "Rico watches how you handled Maya. Loyalty matters."
-    },
-    {
-      id: "blaze-legacy",
-      name: "Blaze's Legacy",
+      id: "blaze-initiation-v2",
       icon: "🔥",
+      name: "Blaze",
+      desc: "Prologue: Burner OS Origin",
+      rewards: "⭐ +3  📢 +2  🔥 +1  💵 +5",
       url: "https://hustletrap.blogspot.com/2025/04/blaze-initiation.html?m=1",
-      requires: ["picked_street"],
-      preview: "Blaze only deals with street soldiers."
+      requires: []
+    },
+    {
+      id: "maya-initiation-v2",
+      icon: "🎒",
+      name: "Maya",
+      desc: "First Contact mission",
+      rewards: "⭐ +5  📢 +3  🧪 +2  🔥 +1  💵 +200",
+      url: "https://hustletrap.blogspot.com/2025/04/maya-initiation.html?m=1",
+      requires: ["met_blaze"]
+    },
+    {
+      id: "rico-initiation-v2",
+      icon: "💼",
+      name: "Rico",
+      desc: "Loyalty Trial mission",
+      rewards: "⭐ +4  📢 +2  🧪 +1  🔥 +2  💵 +15",
+      url: "https://hustletrap.blogspot.com/2025/04/rico-initiation.html?m=1",
+      requires: ["met_blaze", "maya_loyal"]
+    },
+    {
+      id: "skye-mission",
+      icon: "🧬",
+      name: "Skye",
+      desc: "Chem Lab Initiation",
+      rewards: "⭐ +2  🧪 +5  💵 +5",
+      url: "#",
+      requires: ["met_blaze", "rp_10"]
+    },
+    {
+      id: "diesel-mission",
+      icon: "🛠️",
+      name: "Diesel",
+      desc: "Logistics and Arms",
+      rewards: "⭐ +3  📢 +3  💵 +20",
+      url: "#",
+      requires: ["met_blaze", "rep_8"]
     }
   ];
 
   const list = document.getElementById("mission-list");
+  const summary = document.getElementById("mission-summary");
+  let completedCount = 0;
+
   missions.forEach(m => {
-    const done = completed.includes(m.id);
-    const locked = m.requires.some(flag => !flags[flag]);
+    const isDone = completed.includes(m.id);
+    const isLocked = m.requires.some(req => !flags[req]);
+    const isAvailable = !isLocked && !isDone;
+    if (isDone) completedCount++;
 
     const box = document.createElement("div");
-    box.style = `background:#1a1a1a;border:1px solid ${done ? '#0f0' : locked ? '#555' : '#999'};border-radius:10px;padding:12px;cursor:${locked ? 'not-allowed' : 'pointer'};opacity:${locked ? 0.4 : 1};`;
+    box.style = `background:#1b1b1b;border-radius:10px;padding:12px;position:relative;border:1px solid ${isDone ? '#0f0' : isAvailable ? '#0af' : '#444'};opacity:${isLocked ? 0.5 : 1};`;
+
     box.innerHTML = `
-      <div style="font-size:1.4rem;margin-bottom:6px;">${m.icon} <strong>${m.name}</strong></div>
-      <div style="font-size:0.9rem;color:#aaa;margin-bottom:8px;">${m.preview}</div>
-      <div style="font-size:0.8rem;color:${done ? '#0f0' : locked ? '#888' : '#0af'};">
-        ${done ? "✔ Completed" : locked ? "🔒 Locked" : "→ Tap to Start"}
+      <div style="display:flex;align-items:center;margin-bottom:8px;">
+        <div style="font-size:2rem;margin-right:12px;">${m.icon}</div>
+        <div>
+          <strong>${m.name}</strong><br>
+          <span style="font-size:0.85rem;color:#aaa;">${m.desc}</span>
+        </div>
       </div>
+      <div style="font-size:0.9rem;margin-bottom:8px;">${m.rewards}</div>
+      ${isLocked ? `<div style='font-size:0.8rem;color:#888;margin-bottom:8px;'>🔒 Requires: ${m.requires.join(', ')}</div>` : ""}
+      <button ${isLocked ? "disabled" : ""} onclick="location.href='${m.url}'" style="width:100%;padding:8px;background:#222;border:1px solid #555;color:${isLocked ? '#666' : '#0af'};border-radius:6px;cursor:${isLocked ? 'default' : 'pointer'};font-size:0.9rem;">
+        ${isDone ? '✔ Completed' : isLocked ? '→ Locked' : '→ Start Mission'}
+      </button>
     `;
-    if (!locked && !done) box.onclick = () => window.location.href = m.url;
+
     list.appendChild(box);
   });
+
+  summary.innerHTML = `Missions Completed: ${completedCount} / ${missions.length}`;
 })();
 </script>
-
