@@ -7,21 +7,11 @@
     Missions
   </h2>
 
-  <!-- Stat Icons -->
-  <div style="display:flex;justify-content:space-around;margin-bottom:16px;
-              padding:8px;background:#1a1a1a;border-radius:8px;border:1px solid #333;">
-    <div title="XP">⭐ XP</div>
-    <div title="REP">📢 REP</div>
-    <div title="RP">🧪 RP</div>
-    <div title="Heat">🔥 Heat</div>
-    <div title="Cash">💵 Cash</div>
-  </div>
-
   <!-- Mission List -->
   <div id="mission-list" style="display:grid;gap:12px;">
 
-    <!-- Blaze (always unlocked) -->
-    <div class="mission-card unlocked" style="display:flex;align-items:center;
+    <!-- Blaze (unlocked) -->
+    <div class="mission-card unlocked" style="position:relative;display:flex;align-items:center;
          padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;">
       <div style="font-size:2rem;margin-right:12px;">🔥</div>
       <div style="flex:1;">
@@ -30,80 +20,81 @@
         <small style="color:#0af;">Specialty: 💊 Xanny Bars</small>
       </div>
       <a href="/2025/04/blaze-initiation.html?m=1" class="mission-btn"
-         style="background:#0af;color:#111;padding:8px 12px;border-radius:6px;
-                text-decoration:none;">Start</a>
+         style="background:#0af;color:#111;padding:6px 10px;border-radius:6px;
+                font-size:0.8rem;text-decoration:none;">Start</a>
     </div>
 
-    <!-- Maya (locked until Blaze complete) -->
-    <div id="maya-mission" class="mission-card locked" style="display:flex;align-items:center;
+    <!-- Maya -->
+    <div id="maya-mission" class="mission-card locked" style="position:relative;display:flex;align-items:center;
          padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.6;">
+      <div style="position:absolute;top:10px;right:10px;font-size:1.2rem;color:#f44;">🔒</div>
       <div style="font-size:2rem;margin-right:12px;">🎒</div>
       <div style="flex:1;">
         <strong>Maya’s First Contact</strong><br>
-        <small style="color:#aaa;">Complete Blaze’s mission to unlock</small><br>
+        <small style="color:#aaa;">Unlock by completing Blaze</small><br>
         <small style="color:#0af;">Specialty: 🌿 Dub Sacks</small>
       </div>
-      <div class="locked-icon" style="font-size:1.5rem;color:#f44;">🔒</div>
       <a href="/2025/04/maya-initiation.html?m=1" class="mission-btn disabled"
-         style="display:none;background:#555;color:#888;padding:8px 12px;border-radius:6px;
-                text-decoration:none;cursor:not-allowed;">Start</a>
+         style="display:none;background:#555;color:#888;padding:6px 10px;border-radius:6px;
+                font-size:0.8rem;text-decoration:none;cursor:not-allowed;">Start</a>
     </div>
 
-    <!-- Rico (locked until Maya complete) -->
-    <div id="rico-mission" class="mission-card locked" style="display:flex;align-items:center;
+    <!-- Rico -->
+    <div id="rico-mission" class="mission-card locked" style="position:relative;display:flex;align-items:center;
          padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.6;">
+      <div style="position:absolute;top:10px;right:10px;font-size:1.2rem;color:#f44;">🔒</div>
       <div style="font-size:2rem;margin-right:12px;">💼</div>
       <div style="flex:1;">
         <strong>Rico’s Trial</strong><br>
-        <small style="color:#aaa;">Requires Maya’s loyalty</small><br>
+        <small style="color:#aaa;">Requires Maya’s Loyalty</small><br>
         <small style="color:#0af;">Specialty: 💊 Percs</small>
       </div>
-      <div class="locked-icon" style="font-size:1.5rem;color:#f44;">🔒</div>
       <a href="/2025/04/rico-initiation.html?m=1" class="mission-btn disabled"
-         style="display:none;background:#555;color:#888;padding:8px 12px;border-radius:6px;
-                text-decoration:none;cursor:not-allowed;">Start</a>
+         style="display:none;background:#555;color:#888;padding:6px 10px;border-radius:6px;
+                font-size:0.8rem;text-decoration:none;cursor:not-allowed;">Start</a>
     </div>
 
     <!-- Skye (Coming Soon) -->
-    <div class="mission-card coming-soon" style="display:flex;align-items:center;
+    <div class="mission-card coming-soon" style="position:relative;display:flex;align-items:center;
          padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.4;">
+      <div style="position:absolute;top:10px;right:10px;font-size:1.2rem;color:#666;">⏳</div>
       <div style="font-size:2rem;margin-right:12px;">🧬</div>
       <div style="flex:1;">
         <strong>Skye’s Chem Lab</strong><br>
         <small style="color:#aaa;">Coming Soon</small><br>
         <small style="color:#0af;">Specialty: 🧪 Ero (Molly)</small>
       </div>
-      <div style="font-size:1.5rem;color:#666;">⏳</div>
     </div>
 
-    <!-- Diesel (Coming Soon) -->
-    <div class="mission-card coming-soon" style="display:flex;align-items:center;
+    <!-- Diesel -->
+    <div class="mission-card coming-soon" style="position:relative;display:flex;align-items:center;
          padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.4;">
+      <div style="position:absolute;top:10px;right:10px;font-size:1.2rem;color:#666;">⏳</div>
       <div style="font-size:2rem;margin-right:12px;">💉</div>
       <div style="flex:1;">
         <strong>Diesel’s Logistics</strong><br>
         <small style="color:#aaa;">Coming Soon</small><br>
         <small style="color:#0af;">Specialty: 🚬 Sizzurp</small>
       </div>
-      <div style="font-size:1.5rem;color:#666;">⏳</div>
     </div>
 
-    <!-- Jax (Coming Soon) -->
-    <div class="mission-card coming-soon" style="display:flex;align-items:center;
+    <!-- Jax -->
+    <div class="mission-card coming-soon" style="position:relative;display:flex;align-items:center;
          padding:12px;background:#1b1b1b;border:1px solid #444;border-radius:10px;opacity:0.4;">
+      <div style="position:absolute;top:10px;right:10px;font-size:1.2rem;color:#666;">⏳</div>
       <div style="font-size:2rem;margin-right:12px;">💊</div>
       <div style="flex:1;">
         <strong>Jax’s Operation</strong><br>
         <small style="color:#aaa;">Coming Soon</small><br>
         <small style="color:#0af;">Specialty: 💉 M30s</small>
       </div>
-      <div style="font-size:1.5rem;color:#666;">⏳</div>
     </div>
 
   </div>
 </div>
 
 <script>
+// Auto-unlock Maya and Rico
 (function(){
   const completed = JSON.parse(localStorage.getItem("completedMissions")||"[]");
 
@@ -126,3 +117,4 @@
   }
 })();
 </script>
+
