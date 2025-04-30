@@ -1,4 +1,4 @@
-// npc-missions-engine-v2.js
+// npc-missions-engine-v2.js + auto-contact patch
 window.initNPCMission = function () {
   const {
     npcId,
@@ -44,7 +44,6 @@ window.initNPCMission = function () {
   let currentQ = 0;
   let totalDelta = { xp: 0, rep: 0, rp: 0, heat: 0, cash: 0 };
   let totalNPC = { loyalty: 0, trust: 0 };
-
   let timerId = null;
 
   function renderQuestion() {
@@ -109,6 +108,12 @@ window.initNPCMission = function () {
     localStorage.setItem(npcKey, JSON.stringify(npc));
     completed.push(npcId);
     localStorage.setItem(CK, JSON.stringify(completed));
+
+    // Add to contacts_unlocked
+    let unlocked = JSON.parse(localStorage.getItem("contacts_unlocked") || "[]");
+    const contactId = npcId.split("-")[0];
+    if (!unlocked.includes(contactId)) unlocked.push(contactId);
+    localStorage.setItem("contacts_unlocked", JSON.stringify(unlocked));
 
     content.innerHTML = "<p><strong>Mission Complete!</strong></p>";
     options.innerHTML = "";
