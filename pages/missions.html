@@ -72,9 +72,12 @@
     .mission-card-body a {
       display: block;
       margin-top: 4px;
-      color: #0af;
       font-size: 0.9rem;
       text-decoration: none;
+    }
+    .locked {
+      color: #666;
+      pointer-events: none;
     }
     @media screen and (max-width: 480px) {
       .phone-ui {
@@ -109,7 +112,7 @@
         <div class="mission-card-body">
           <strong>Rico</strong>
           <span>Loyalty Trial mission</span>
-          <a href="https://hustletrap.blogspot.com/2025/04/rico-initiation.html?m=1">→ Start</a>
+          <a id="rico-link" class="locked">→ Locked</a>
         </div>
       </div>
       <div class="mission-card">
@@ -117,7 +120,7 @@
         <div class="mission-card-body">
           <strong>Blaze</strong>
           <span>Legacy Streets mission</span>
-          <a style="color:#666;">→ Locked</a>
+          <a class="locked">→ Locked</a>
         </div>
       </div>
       <div class="mission-card">
@@ -125,7 +128,7 @@
         <div class="mission-card-body">
           <strong>Skye</strong>
           <span>Chem Lab Initiation</span>
-          <a style="color:#666;">→ Coming Soon</a>
+          <a class="locked">→ Coming Soon</a>
         </div>
       </div>
       <div class="mission-card">
@@ -133,10 +136,22 @@
         <div class="mission-card-body">
           <strong>Diesel</strong>
           <span>Logistics and Arms</span>
-          <a style="color:#666;">→ Coming Soon</a>
+          <a class="locked">→ Coming Soon</a>
         </div>
       </div>
     </div>
   </div>
+
+  <script>
+    const unlockedFlags = JSON.parse(localStorage.getItem("npc_flags") || "{}");
+    if (unlockedFlags.maya_loyal) {
+      const link = document.getElementById("rico-link");
+      if (link) {
+        link.href = "https://hustletrap.blogspot.com/2025/04/rico-initiation.html?m=1";
+        link.classList.remove("locked");
+        link.textContent = "→ Start";
+      }
+    }
+  </script>
 </body>
 </html>
