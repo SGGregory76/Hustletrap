@@ -1,0 +1,185 @@
+
+<!-- Diesel NPC Profile - Themed, Full Inline -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<div class="profile-container">
+  <h2 style="color: #94a3b8;"><i class="fas fa-gas-pump"></i> Diesel</h2>
+
+  <section>
+    <h3><i class="fas fa-id-card-alt" style="color: #888;"></i> Bio</h3>
+    <p class="npc-bio">
+      Diesel's the plug for volatile mixes and street-grade accelerants — flammable, both in product and personality.
+      Rumor has it he once cooked up a synthetic blend that took out a whole block’s supply chain. He deals dirty and fast,
+      and if you can stomach the fumes, he might let you ride shotgun on a scorched earth operation.
+    </p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-bolt" style="color:#facc15;"></i> Stats</h3>
+    <div>Loyalty: <span id="diesel-loyalty-bar" class="bar"></span></div>
+    <div>Trust: <span id="diesel-trust-bar" class="bar"></span></div>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-flask" style="color:#94a3b8;"></i> Diesel’s Inventory</h3>
+    <div class="inventory-grid" id="diesel-inventory">
+      <div class="inv-slot" id="slot-1">Empty</div>
+      <div class="inv-slot" id="slot-2">Empty</div>
+      <div class="inv-slot" id="slot-3">Empty</div>
+      <div class="inv-slot" id="slot-4">Empty</div>
+      <div class="inv-slot" id="slot-5">Empty</div>
+    </div>
+    <div class="trade-buttons">
+      <button onclick="buyFromDiesel()"><i class="fas fa-cart-arrow-down"></i> Buy</button>
+      <button onclick="sellToDiesel()"><i class="fas fa-handshake"></i> Sell</button>
+    </div>
+    <p id="trade-result" style="margin-top:8px;"></p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-user-circle" style="color:#22d3ee;"></i> Your Inventory</h3>
+    <div class="inventory-grid" id="player-inventory"></div>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-tasks" style="color:#a855f7;"></i> Missions</h3>
+    <div class="mission-buttons">
+      <button onclick="startDieselMission('intro')">Intro Mission</button>
+      <button onclick="startDieselMission('burn')">Burn Run</button>
+    </div>
+    <div id="mission-area"></div>
+  </section>
+</div>
+
+<style>
+.profile-container {
+  background: #0f0f0f;
+  color: #e5e5e5;
+  padding: 16px;
+  border-radius: 16px;
+  font-family: 'Segoe UI', sans-serif;
+  max-width: 440px;
+  margin: auto;
+}
+section { margin-bottom: 20px; }
+.npc-bio { font-style: italic; color: #aaa; }
+.bar {
+  display: inline-block;
+  width: 100px;
+  height: 10px;
+  background: #444;
+  border: 1px solid #222;
+  margin-left: 10px;
+}
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.inv-slot {
+  background: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 11px;
+  text-align: center;
+  color: #ccc;
+}
+.trade-buttons button,
+.mission-buttons button {
+  padding: 8px 10px;
+  background: #1c1c1c;
+  color: #fff;
+  border-radius: 8px;
+  border: 1px solid #444;
+  margin: 6px 6px 0 0;
+  cursor: pointer;
+}
+button:hover { background: #333; }
+</style>
+
+<script>
+function updateDieselStats() {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  const loyalty = (data.loyalty && data.loyalty.diesel) || 0;
+  const trust = (data.trust && data.trust.diesel) || 0;
+  document.getElementById("diesel-loyalty-bar").style.width = Math.min(loyalty * 10, 100) + "px";
+  document.getElementById("diesel-trust-bar").style.width = Math.min(trust * 10, 100) + "px";
+}
+function updateDieselInventory() {
+  const inv = JSON.parse(localStorage.getItem("dieselInventory") || "[]");
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("slot-" + i).innerText = inv[i - 1] || "Empty";
+  }
+}
+function buyFromDiesel() {
+  const inv = JSON.parse(localStorage.getItem("dieselInventory") || "[]");
+  if (!inv.length) return showResult("Nothing to buy.");
+  const item = inv.pop();
+  saveToPlayerInventory(item);
+  localStorage.setItem("dieselInventory", JSON.stringify(inv));
+  updateDieselInventory();
+  showResult("You bought: " + item);
+}
+function sellToDiesel() {
+  const item = prompt("Enter item to sell:");
+  if (!item) return;
+  let inv = JSON.parse(localStorage.getItem("dieselInventory") || "[]");
+  if (inv.length >= 5) return showResult("Diesel’s inventory is full.");
+  inv.push(item);
+  localStorage.setItem("dieselInventory", JSON.stringify(inv));
+  updateDieselInventory();
+  showResult("You sold: " + item);
+}
+function saveToPlayerInventory(item) {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.inventory = data.inventory || [];
+  data.inventory.push(item);
+  localStorage.setItem("gameData", JSON.stringify(data));
+  updatePlayerInventory();
+}
+function updatePlayerInventory() {
+  const grid = document.getElementById("player-inventory");
+  grid.innerHTML = "";
+  const inv = (JSON.parse(localStorage.getItem("gameData") || "{}").inventory) || [];
+  inv.forEach(item => {
+    const slot = document.createElement("div");
+    slot.className = "inv-slot";
+    slot.innerHTML = `<i class="fas fa-capsules" style="color:#22d3ee;"></i><br>${item}`;
+    grid.appendChild(slot);
+  });
+}
+function showResult(msg) {
+  document.getElementById("trade-result").innerText = msg;
+}
+function startDieselMission(key) {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  const flags = data.flags || {};
+  const area = document.getElementById("mission-area");
+  if (key === "intro") {
+    if (flags.diesel_intro) return area.innerHTML = "<p>Mission already complete.</p>";
+    area.innerHTML = "<p>Intro Mission: Prove you're not flammable.<br><button onclick=\"completeDieselMission('diesel_intro', {rep:1, cash:7})\">Complete</button></p>";
+  }
+  if (key === "burn") {
+    if (!flags.diesel_intro) return area.innerHTML = "<p>Locked. Complete the Intro mission first.</p>";
+    if (flags.diesel_burn) return area.innerHTML = "<p>Mission already complete.</p>";
+    area.innerHTML = "<p>Burn Run: Deliver a sketchy compound before it explodes.<br><button onclick=\"completeDieselMission('diesel_burn', {rep:2, cash:20, heat:2})\">Complete</button></p>";
+  }
+}
+function completeDieselMission(flag, rewards) {
+  let data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.flags = data.flags || {};
+  data.flags[flag] = true;
+  data.rep = (data.rep || 0) + (rewards.rep || 0);
+  data.cash = (data.cash || 0) + (rewards.cash || 0);
+  data.heat = (data.heat || 0) + (rewards.heat || 0);
+  localStorage.setItem("gameData", JSON.stringify(data));
+  document.getElementById("mission-area").innerHTML = "<p>Mission Complete. Returning...</p>";
+  setTimeout(() => window.location.href = "/p/burner-os.html", 3000);
+}
+document.addEventListener("DOMContentLoaded", () => {
+  updateDieselStats();
+  updateDieselInventory();
+  updatePlayerInventory();
+});
+</script>
