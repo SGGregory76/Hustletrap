@@ -1,0 +1,184 @@
+
+<!-- Rico NPC Profile - Themed, Full Inline -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<div class="profile-container">
+  <h2 style="color: #facc15;"><i class="fas fa-dumbbell"></i> Rico</h2>
+
+  <section>
+    <h3><i class="fas fa-id-card-alt" style="color: #888;"></i> Bio</h3>
+    <p class="npc-bio">
+      Rico used to run protection crews until the money dried up. Now he pushes product to fund his own squad.
+      Muscle for hire with a strict code — loyalty in, betrayal out. If you show hustle and respect, Rico might teach you how to move weight with power.
+    </p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-bolt" style="color:#facc15;"></i> Stats</h3>
+    <div>Loyalty: <span id="rico-loyalty-bar" class="bar"></span></div>
+    <div>Trust: <span id="rico-trust-bar" class="bar"></span></div>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-box-open" style="color:#f97316;"></i> Rico’s Inventory</h3>
+    <div class="inventory-grid" id="rico-inventory">
+      <div class="inv-slot" id="slot-1">Empty</div>
+      <div class="inv-slot" id="slot-2">Empty</div>
+      <div class="inv-slot" id="slot-3">Empty</div>
+      <div class="inv-slot" id="slot-4">Empty</div>
+      <div class="inv-slot" id="slot-5">Empty</div>
+    </div>
+    <div class="trade-buttons">
+      <button onclick="buyFromRico()"><i class="fas fa-cart-arrow-down"></i> Buy</button>
+      <button onclick="sellToRico()"><i class="fas fa-handshake"></i> Sell</button>
+    </div>
+    <p id="trade-result" style="margin-top:8px;"></p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-user-circle" style="color:#22d3ee;"></i> Your Inventory</h3>
+    <div class="inventory-grid" id="player-inventory"></div>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-tasks" style="color:#a855f7;"></i> Missions</h3>
+    <div class="mission-buttons">
+      <button onclick="startRicoMission('intro')">Intro Mission</button>
+      <button onclick="startRicoMission('muscle')">Muscle Job</button>
+    </div>
+    <div id="mission-area"></div>
+  </section>
+</div>
+
+<style>
+.profile-container {
+  background: #0f0f0f;
+  color: #e5e5e5;
+  padding: 16px;
+  border-radius: 16px;
+  font-family: 'Segoe UI', sans-serif;
+  max-width: 440px;
+  margin: auto;
+}
+section { margin-bottom: 20px; }
+.npc-bio { font-style: italic; color: #aaa; }
+.bar {
+  display: inline-block;
+  width: 100px;
+  height: 10px;
+  background: #444;
+  border: 1px solid #222;
+  margin-left: 10px;
+}
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.inv-slot {
+  background: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 11px;
+  text-align: center;
+  color: #ccc;
+}
+.trade-buttons button,
+.mission-buttons button {
+  padding: 8px 10px;
+  background: #1c1c1c;
+  color: #fff;
+  border-radius: 8px;
+  border: 1px solid #444;
+  margin: 6px 6px 0 0;
+  cursor: pointer;
+}
+button:hover { background: #333; }
+</style>
+
+<script>
+function updateRicoStats() {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  const loyalty = (data.loyalty && data.loyalty.rico) || 0;
+  const trust = (data.trust && data.trust.rico) || 0;
+  document.getElementById("rico-loyalty-bar").style.width = Math.min(loyalty * 10, 100) + "px";
+  document.getElementById("rico-trust-bar").style.width = Math.min(trust * 10, 100) + "px";
+}
+function updateRicoInventory() {
+  const inv = JSON.parse(localStorage.getItem("ricoInventory") || "[]");
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("slot-" + i).innerText = inv[i - 1] || "Empty";
+  }
+}
+function buyFromRico() {
+  const inv = JSON.parse(localStorage.getItem("ricoInventory") || "[]");
+  if (!inv.length) return showResult("Nothing to buy.");
+  const item = inv.pop();
+  saveToPlayerInventory(item);
+  localStorage.setItem("ricoInventory", JSON.stringify(inv));
+  updateRicoInventory();
+  showResult("You bought: " + item);
+}
+function sellToRico() {
+  const item = prompt("Enter item to sell:");
+  if (!item) return;
+  let inv = JSON.parse(localStorage.getItem("ricoInventory") || "[]");
+  if (inv.length >= 5) return showResult("Rico’s inventory is full.");
+  inv.push(item);
+  localStorage.setItem("ricoInventory", JSON.stringify(inv));
+  updateRicoInventory();
+  showResult("You sold: " + item);
+}
+function showResult(msg) {
+  document.getElementById("trade-result").innerText = msg;
+}
+function saveToPlayerInventory(item) {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.inventory = data.inventory || [];
+  data.inventory.push(item);
+  localStorage.setItem("gameData", JSON.stringify(data));
+  updatePlayerInventory();
+}
+function updatePlayerInventory() {
+  const grid = document.getElementById("player-inventory");
+  grid.innerHTML = "";
+  const inv = (JSON.parse(localStorage.getItem("gameData") || "{}").inventory) || [];
+  inv.forEach(item => {
+    const slot = document.createElement("div");
+    slot.className = "inv-slot";
+    slot.innerHTML = `<i class="fas fa-capsules" style="color:#22d3ee;"></i><br>${item}`;
+    grid.appendChild(slot);
+  });
+}
+function startRicoMission(key) {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  const flags = data.flags || {};
+  const area = document.getElementById("mission-area");
+  if (key === "intro") {
+    if (flags.rico_intro) return area.innerHTML = "<p>Mission already complete.</p>";
+    area.innerHTML = "<p>Intro Mission: Earn Rico’s respect.<br><button onclick=\"completeRicoMission('rico_intro', {rep:1, cash:8})\">Complete</button></p>";
+  }
+  if (key === "muscle") {
+    if (!flags.rico_intro) return area.innerHTML = "<p>Locked. Complete the Intro mission first.</p>";
+    if (flags.rico_muscle) return area.innerHTML = "<p>Mission already complete.</p>";
+    area.innerHTML = "<p>Muscle Job: Show you can protect the corner.<br><button onclick=\"completeRicoMission('rico_muscle', {rep:2, cash:18, heat:1})\">Complete</button></p>";
+  }
+}
+function completeRicoMission(flag, rewards) {
+  let data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.flags = data.flags || {};
+  data.flags[flag] = true;
+  data.rep = (data.rep || 0) + (rewards.rep || 0);
+  data.cash = (data.cash || 0) + (rewards.cash || 0);
+  data.heat = (data.heat || 0) + (rewards.heat || 0);
+  localStorage.setItem("gameData", JSON.stringify(data));
+  document.getElementById("mission-area").innerHTML = "<p>Mission Complete. Returning...</p>";
+  setTimeout(() => window.location.href = "/p/burner-os.html", 3000);
+}
+document.addEventListener("DOMContentLoaded", () => {
+  updateRicoStats();
+  updateRicoInventory();
+  updatePlayerInventory();
+});
+</script>
