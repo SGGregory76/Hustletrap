@@ -1,0 +1,126 @@
+
+<!-- Blaze NPC Profile Page with Bio, Stats, Inventory, and Trade Buttons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<div class="profile-container">
+  <h2>Blaze</h2>
+  <p class="npc-bio">
+    Blaze is a street-savvy burner with a short fuse and a long memory. He handles drops and makes sure loyalty is earned, not assumed.
+  </p>
+  <div class="npc-stats">
+    <div>Loyalty: <span id="blaze-loyalty-bar" class="bar"></span></div>
+    <div>Trust: <span id="blaze-trust-bar" class="bar"></span></div>
+  </div>
+  <h3>Inventory</h3>
+  <div class="inventory-grid" id="blaze-inventory">
+    <div class="inv-slot" id="slot-1">Empty</div>
+    <div class="inv-slot" id="slot-2">Empty</div>
+    <div class="inv-slot" id="slot-3">Empty</div>
+    <div class="inv-slot" id="slot-4">Empty</div>
+    <div class="inv-slot" id="slot-5">Empty</div>
+  </div>
+  <div class="trade-buttons">
+    <button onclick="buyFromBlaze()">Buy (1:1)</button>
+    <button onclick="sellToBlaze()">Sell (1:1)</button>
+  </div>
+  <p id="trade-result" style="margin-top: 10px;"></p>
+</div>
+<style>
+.profile-container {
+  background: #111;
+  color: #fff;
+  padding: 20px;
+  border: 2px solid #333;
+  border-radius: 12px;
+  max-width: 400px;
+  margin: auto;
+}
+.npc-bio {
+  font-style: italic;
+  margin-bottom: 15px;
+}
+.npc-stats {
+  margin-bottom: 15px;
+}
+.bar {
+  display: inline-block;
+  width: 100px;
+  height: 10px;
+  background: #444;
+  border: 1px solid #222;
+  margin-left: 10px;
+  position: relative;
+}
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-bottom: 15px;
+}
+.inv-slot {
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+.trade-buttons button {
+  padding: 8px 12px;
+  background: #333;
+  color: #fff;
+  border-radius: 8px;
+  border: none;
+  margin-right: 10px;
+  cursor: pointer;
+}
+.trade-buttons button:hover {
+  background: #555;
+}
+</style>
+<script>
+function updateBlazeStats() {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  const loyalty = (data.loyalty && data.loyalty.blaze) || 0;
+  const trust = (data.trust && data.trust.blaze) || 0;
+  document.getElementById("blaze-loyalty-bar").style.width = Math.min(loyalty * 10, 100) + "px";
+  document.getElementById("blaze-trust-bar").style.width = Math.min(trust * 10, 100) + "px";
+}
+function buyFromBlaze() {
+  const inv = JSON.parse(localStorage.getItem("blazeInventory") || "[]");
+  if (!inv.length) return showResult("Nothing to buy.");
+  const item = inv.pop();
+  saveToPlayerInventory(item);
+  localStorage.setItem("blazeInventory", JSON.stringify(inv));
+  updateBlazeInventory();
+  showResult("You bought: " + item);
+}
+function sellToBlaze() {
+  const item = prompt("Enter item to sell:");
+  if (!item) return;
+  let inv = JSON.parse(localStorage.getItem("blazeInventory") || "[]");
+  if (inv.length >= 5) return showResult("Blaze’s inventory is full.");
+  inv.push(item);
+  localStorage.setItem("blazeInventory", JSON.stringify(inv));
+  updateBlazeInventory();
+  showResult("You sold: " + item);
+}
+function saveToPlayerInventory(item) {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.inventory = data.inventory || [];
+  data.inventory.push(item);
+  localStorage.setItem("gameData", JSON.stringify(data));
+}
+function updateBlazeInventory() {
+  const inv = JSON.parse(localStorage.getItem("blazeInventory") || "[]");
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("slot-" + i).innerText = inv[i - 1] || "Empty";
+  }
+}
+function showResult(msg) {
+  document.getElementById("trade-result").innerText = msg;
+}
+document.addEventListener("DOMContentLoaded", () => {
+  updateBlazeStats();
+  updateBlazeInventory();
+});
+</script>
