@@ -1,0 +1,184 @@
+
+<!-- Jax NPC Profile - Themed, Full Inline -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<div class="profile-container">
+  <h2 style="color: #f87171;"><i class="fas fa-wrench"></i> Jax</h2>
+
+  <section>
+    <h3><i class="fas fa-id-card-alt" style="color: #888;"></i> Bio</h3>
+    <p class="npc-bio">
+      Jax runs the underground chop shop circuit — half mechanic, half hustler. Grease-stained hands, gold teeth, and a mind for upgrading more than just rides.
+      He’s your guy when you need something fast, dirty, and under the radar. Get on his good side, and he might let you in on the tech trade side hustle.
+    </p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-bolt" style="color:#facc15;"></i> Stats</h3>
+    <div>Loyalty: <span id="jax-loyalty-bar" class="bar"></span></div>
+    <div>Trust: <span id="jax-trust-bar" class="bar"></span></div>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-toolbox" style="color:#f87171;"></i> Jax’s Inventory</h3>
+    <div class="inventory-grid" id="jax-inventory">
+      <div class="inv-slot" id="slot-1">Empty</div>
+      <div class="inv-slot" id="slot-2">Empty</div>
+      <div class="inv-slot" id="slot-3">Empty</div>
+      <div class="inv-slot" id="slot-4">Empty</div>
+      <div class="inv-slot" id="slot-5">Empty</div>
+    </div>
+    <div class="trade-buttons">
+      <button onclick="buyFromJax()"><i class="fas fa-cart-arrow-down"></i> Buy</button>
+      <button onclick="sellToJax()"><i class="fas fa-handshake"></i> Sell</button>
+    </div>
+    <p id="trade-result" style="margin-top:8px;"></p>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-user-circle" style="color:#22d3ee;"></i> Your Inventory</h3>
+    <div class="inventory-grid" id="player-inventory"></div>
+  </section>
+
+  <section>
+    <h3><i class="fas fa-tasks" style="color:#a855f7;"></i> Missions</h3>
+    <div class="mission-buttons">
+      <button onclick="startJaxMission('intro')">Intro Mission</button>
+      <button onclick="startJaxMission('chop')">Chop Shop</button>
+    </div>
+    <div id="mission-area"></div>
+  </section>
+</div>
+
+<style>
+.profile-container {
+  background: #0f0f0f;
+  color: #e5e5e5;
+  padding: 16px;
+  border-radius: 16px;
+  font-family: 'Segoe UI', sans-serif;
+  max-width: 440px;
+  margin: auto;
+}
+section { margin-bottom: 20px; }
+.npc-bio { font-style: italic; color: #aaa; }
+.bar {
+  display: inline-block;
+  width: 100px;
+  height: 10px;
+  background: #444;
+  border: 1px solid #222;
+  margin-left: 10px;
+}
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  margin-top: 10px;
+}
+.inv-slot {
+  background: #1f1f1f;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 6px;
+  font-size: 11px;
+  text-align: center;
+  color: #ccc;
+}
+.trade-buttons button,
+.mission-buttons button {
+  padding: 8px 10px;
+  background: #1c1c1c;
+  color: #fff;
+  border-radius: 8px;
+  border: 1px solid #444;
+  margin: 6px 6px 0 0;
+  cursor: pointer;
+}
+button:hover { background: #333; }
+</style>
+
+<script>
+function updateJaxStats() {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  const loyalty = (data.loyalty && data.loyalty.jax) || 0;
+  const trust = (data.trust && data.trust.jax) || 0;
+  document.getElementById("jax-loyalty-bar").style.width = Math.min(loyalty * 10, 100) + "px";
+  document.getElementById("jax-trust-bar").style.width = Math.min(trust * 10, 100) + "px";
+}
+function updateJaxInventory() {
+  const inv = JSON.parse(localStorage.getItem("jaxInventory") || "[]");
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("slot-" + i).innerText = inv[i - 1] || "Empty";
+  }
+}
+function buyFromJax() {
+  const inv = JSON.parse(localStorage.getItem("jaxInventory") || "[]");
+  if (!inv.length) return showResult("Nothing to buy.");
+  const item = inv.pop();
+  saveToPlayerInventory(item);
+  localStorage.setItem("jaxInventory", JSON.stringify(inv));
+  updateJaxInventory();
+  showResult("You bought: " + item);
+}
+function sellToJax() {
+  const item = prompt("Enter item to sell:");
+  if (!item) return;
+  let inv = JSON.parse(localStorage.getItem("jaxInventory") || "[]");
+  if (inv.length >= 5) return showResult("Jax’s inventory is full.");
+  inv.push(item);
+  localStorage.setItem("jaxInventory", JSON.stringify(inv));
+  updateJaxInventory();
+  showResult("You sold: " + item);
+}
+function saveToPlayerInventory(item) {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.inventory = data.inventory || [];
+  data.inventory.push(item);
+  localStorage.setItem("gameData", JSON.stringify(data));
+  updatePlayerInventory();
+}
+function updatePlayerInventory() {
+  const grid = document.getElementById("player-inventory");
+  grid.innerHTML = "";
+  const inv = (JSON.parse(localStorage.getItem("gameData") || "{}").inventory) || [];
+  inv.forEach(item => {
+    const slot = document.createElement("div");
+    slot.className = "inv-slot";
+    slot.innerHTML = `<i class="fas fa-capsules" style="color:#22d3ee;"></i><br>${item}`;
+    grid.appendChild(slot);
+  });
+}
+function showResult(msg) {
+  document.getElementById("trade-result").innerText = msg;
+}
+function startJaxMission(key) {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  const flags = data.flags || {};
+  const area = document.getElementById("mission-area");
+  if (key === "intro") {
+    if (flags.jax_intro) return area.innerHTML = "<p>Mission already complete.</p>";
+    area.innerHTML = "<p>Intro Mission: Prove you're more than a passenger.<br><button onclick=\"completeJaxMission('jax_intro', {rep:1, cash:6})\">Complete</button></p>";
+  }
+  if (key === "chop") {
+    if (!flags.jax_intro) return area.innerHTML = "<p>Locked. Complete the Intro mission first.</p>";
+    if (flags.jax_chop) return area.innerHTML = "<p>Mission already complete.</p>";
+    area.innerHTML = "<p>Chop Shop: Deliver tools and parts under pressure.<br><button onclick=\"completeJaxMission('jax_chop', {rep:2, cash:18, heat:1})\">Complete</button></p>";
+  }
+}
+function completeJaxMission(flag, rewards) {
+  let data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.flags = data.flags || {};
+  data.flags[flag] = true;
+  data.rep = (data.rep || 0) + (rewards.rep || 0);
+  data.cash = (data.cash || 0) + (rewards.cash || 0);
+  data.heat = (data.heat || 0) + (rewards.heat || 0);
+  localStorage.setItem("gameData", JSON.stringify(data));
+  document.getElementById("mission-area").innerHTML = "<p>Mission Complete. Returning...</p>";
+  setTimeout(() => window.location.href = "/p/burner-os.html", 3000);
+}
+document.addEventListener("DOMContentLoaded", () => {
+  updateJaxStats();
+  updateJaxInventory();
+  updatePlayerInventory();
+});
+</script>
