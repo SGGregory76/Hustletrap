@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Map - HustleTrap</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+      color: #eee;
+    }
+    .map-title {
+      text-align: center;
+      padding: 15px;
+      font-size: 1.5em;
+      background: #111;
+      border-bottom: 1px solid #444;
+    }
+    .map-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      padding: 20px;
+    }
+    .map-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      padding: 12px;
+      border-radius: 8px;
+      text-align: center;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+    .map-card:hover {
+      background: #2a2a2a;
+      transform: scale(1.03);
+    }
+    .hidden-card {
+      background: #111;
+      border: 1px dashed #444;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="map-title">City Map</div>
+
+  <div class="map-container">
+    <div class="map-card">Store</div>
+    <div class="map-card">Warehouse</div>
+    <div class="map-card">Storage</div>
+    <div class="map-card hidden-card">?</div>
+    <div class="map-card hidden-card">?</div>
+    <div class="map-card hidden-card">?</div>
+  </div>
+
+</body>
+</html>
