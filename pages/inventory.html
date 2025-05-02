@@ -1,48 +1,74 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Inventory</title>
+  <meta charset="UTF-8">
+  <title>Inventory - HustleTrap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { background: #101010; color: white; font-family: sans-serif; padding: 20px; }
-    .item {
-      background: #1c1c1c;
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+    .inv-slot {
+      background: #111;
+      border: 1px solid #333;
       border-radius: 8px;
       padding: 10px;
-      margin-bottom: 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    .item-header {
-      font-size: 16px;
-      font-weight: bold;
-    }
-    .item-desc {
-      font-size: 13px;
-      color: #aaa;
+    .inv-slot img {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
 <body>
-  <h2 style="text-align:center;">Inventory</h2>
-  <div id="inventoryList"></div>
 
-  <script>
-    function renderInventory() {
-      const inv = JSON.parse(localStorage.getItem("inventory") || "[]");
-      const box = document.getElementById("inventoryList");
-      if (inv.length === 0) {
-        box.innerHTML = "<p style='text-align:center;color:#888;'>No items in inventory.</p>";
-        return;
-      }
+<h2>Inventory</h2>
+<div class="inventory-grid" id="inventoryGrid"></div>
 
-      box.innerHTML = inv.map(item => `
-        <div class="item">
-          <div class="item-header">${item.icon || "❔"} ${item.name}</div>
-          <div class="item-desc">${item.desc || "No description available."}</div>
-        </div>
-      `).join("");
-    }
+<script>
+const ICONS = {
+  "Marijuana": "https://yourcdn.com/icons/marijuana.png",
+  "Meth": "https://yourcdn.com/icons/meth.png",
+  "Crack": "https://yourcdn.com/icons/crack.png",
+  "Coke": "https://yourcdn.com/icons/coke.png",
+  "Packaging": "https://yourcdn.com/icons/packaging.png",
+  "Grinding Tool": "https://yourcdn.com/icons/grinding.png",
+  "Extraction Kit": "https://yourcdn.com/icons/extraction.png"
+};
 
-    document.addEventListener("DOMContentLoaded", renderInventory);
-  </script>
+const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+const items = data.inventory || [];
+
+const grid = document.getElementById("inventoryGrid");
+if (items.length === 0) {
+  grid.innerHTML = "<p style='grid-column: span 2; text-align:center;'>No items in inventory.</p>";
+} else {
+  items.forEach(item => {
+    const icon = ICONS[item] || "https://via.placeholder.com/48?text=?";
+    const div = document.createElement("div");
+    div.className = "inv-slot";
+    div.innerHTML = `<img src="${icon}" alt="${item}"><span>${item}</span>`;
+    grid.appendChild(div);
+  });
+}
+</script>
+
 </body>
 </html>
