@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blaze Prologue - Hustle Trap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #000; color: #f0f0f0; font-family: 'Segoe UI', sans-serif; }
+    .mission-container {
+      max-width: 480px;
+      margin: 30px auto;
+      padding: 20px;
+      background: #111;
+      border-radius: 10px;
+      border: 1px solid #444;
+    }
+    .dialogue p { margin-bottom: 10px; }
+    button {
+      margin-top: 12px;
+      padding: 10px 20px;
+      background: #222;
+      color: #fff;
+      border: 1px solid #666;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover { background: #333; }
+  </style>
+</head>
+<body>
+
+<div class="mission-container">
+  <div id="intro-scene">
+    <h2>Blaze - Prologue</h2>
+    <div class="dialogue">
+      <p><strong>Blaze:</strong> “You want in? Prove it. Answer smart — your stats and your pockets depend on it.”</p>
+    </div>
+    <div style="text-align:center;">
+      <button onclick="startPrologue()">Start the Test</button>
+    </div>
+  </div>
+
+  <div id="question-box" style="display:none;"></div>
+  <div id="summary-box" style="display:none;"></div>
+</div>
+
+<script>
+// Prevent re-run or abuse
+const gameData = JSON.parse(localStorage.getItem("gameData") || "{}");
+if (gameData.flags && gameData.flags.blazePrologue) {
+  document.body.innerHTML = "<div style='color:#ccc;padding:20px;'>You’ve already completed Blaze’s Prologue.</div>";
+  throw new Error("Mission already completed.");
+}
+if (sessionStorage.getItem("prologueActive")) {
+  alert("Prologue already running in another tab.");
+  throw new Error("Prologue already active.");
+}
+sessionStorage.setItem("prologueActive", "true");
+
+const redirectURL = "https://hustletrap.blogspot.com/p/burner-os.html?m=1";
+const questions = [
+  {
+    text: "Someone offers you a stolen stash of Marijuana. What do you do?",
+    options: [
+      { text: "Take it and say nothing", xp: 2, rep: 1, item: "Marijuana" },
+      { text: "Ask Blaze first", xp: 1, trust: 1 },
+      { text: "Refuse it", heat: -1 }
+    ]
+  },
+  {
+    text: "Blaze hands you a cracked phone. 'Sell this for meth.'",
+    options: [
+      { text: "Complete the deal", xp: 1, cash: 50, item: "Meth" },
+      { text: "Keep the phone", heat: 2, trust: -2 },
+      { text: "Return the phone", trust: 2, loyalty: 1 }
+    ]
+  },
+  {
+    text: "You're offered a free Grinding Tool to start your hustle.",
+    options: [
+      { text: "Accept it", item: "Grinding Tool", xp: 1 },
+      { text: "Ask for cash instead", cash: 100, rep: -1 },
+      { text: "Decline", rep: 1 }
+    ]
+  },
+  {
+    text: "The corner boys offer to trade Coke for Packaging.",
+    options: [
+      { text: "Trade and learn the ropes", item: "Coke", rep: 1, xp: 1 },
+      { text: "Decline the trade", trust: -1 },
+      { text: "Steal both", heat: 3, cash: 20, loyalty: -2 }
+    ]
+  },
+  {
+    text: "Blaze asks you to help extract Crack from a broken stash.",
+    options: [
+      { text: "Use the Extraction Kit", item: "Extraction Kit", item2: "Crack", xp: 2 },
+      { text: "Watch and learn", xp: 1, rep: 1 },
+      { text: "Burn it to avoid trouble", heat: -2, rep: -1 }
+    ]
+  }
+];
+
+let state = {
+  current: 0, xp: 0, rep: 0, heat: 0, rp: 0, cash: 0,
+  trust: 0, loyalty: 0, items: []
+};
+
+function startPrologue() {
+  document.getElementById("intro-scene").style.display = "none";
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[state.current];
+  const box = document.getElementById("question-box");
+  box.style.display = "block";
+  box.innerHTML = `<p><strong>Q${state.current + 1}:</strong> ${q.text}</p>` +
+    q.options.map((opt, i) =>
+      `<button onclick="selectOption(${i})">${opt.text}</button>`
+    ).join("");
+}
+
+function selectOption(index) {
+  const result = questions[state.current].options[index];
+  for (let key in result) {
+    if (key === "item" || key === "item2") {
+      state.items.push(result[key]);
+    } else {
+      state[key] = (state[key] || 0) + result[key];
+    }
+  }
+  state.current++;
+  if (state.current >= questions.length) {
+    showSummary();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showSummary() {
+  document.getElementById("question-box").style.display = "none";
+  const summary = document.getElementById("summary-box");
+  summary.style.display = "block";
+  summary.innerHTML = `
+    <h3>Prologue Complete</h3>
+    <p>XP: ${state.xp} | REP: ${state.rep} | HEAT: ${state.heat} | CASH: $${state.cash}</p>
+    <p>Inventory: ${state.items.join(", ") || "None"}</p>
+    <p><button onclick="finalize()">Return to Burner OS</button></p>
+  `;
+}
+
+function finalize() {
+  const data = JSON.parse(localStorage.getItem("gameData") || "{}");
+  data.xp = (data.xp || 0) + state.xp;
+  data.rep = (data.rep || 0) + state.rep;
+  data.heat = (data.heat || 0) + state.heat;
+  data.rp = (data.rp || 0) + state.rp;
+  data.cash = (data.cash || 0) + state.cash;
+  data.inventory = data.inventory || [];
+  state.items.forEach(i => data.inventory.push(i));
+  data.logs = data.logs || [];
+  data.logs.push(`Blaze Prologue: +${state.xp} XP, +${state.rep} REP, +${state.heat} HEAT, +$${state.cash}, Items: ${state.items.join(", ")}`);
+  data.flags = data.flags || {};
+  data.flags.blazePrologue = true;
+  localStorage.setItem("gameData", JSON.stringify(data));
+  sessionStorage.removeItem("prologueActive");
+  window.location.href = redirectURL;
+}
+</script>
+
+</body>
+</html>
