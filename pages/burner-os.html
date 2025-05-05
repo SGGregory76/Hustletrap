@@ -5,6 +5,55 @@
   <title>Burner OS - Hustle Trap</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://sggregory76.github.io/Hustletrap/CSS/styles.css?cachebust=123" />
+  
+  
+  <script>
+
+  // BLOCK nested Burner OS iframe from loading itself
+
+  if (window !== window.top && window.location.href.includes("burner-os")) {
+
+    document.documentElement.innerHTML = `
+
+      <body style="background:#000; color:#f44; font-family:sans-serif; padding:40px; text-align:center;">
+
+        <h2>Burner OS blocked self-loading inside an iframe.</h2>
+
+        <p>Please return to the main screen.</p>
+
+      </body>
+
+    `;
+
+    window.stop();
+
+    throw new Error("Blocked self-loading OS.");
+
+  }
+
+  // BLOCK unwanted theme redirect (niadzgn cookie.html)
+
+  if (window.location.href.includes("niadzgn.blogspot.com/p/cookie.html")) {
+
+    document.documentElement.innerHTML = `
+
+      <body style="background:#000; color:#f44; font-family:sans-serif; padding:40px; text-align:center;">
+
+        <h2>This page has been blocked by HustleTrap.</h2>
+
+        <p>Redirected theme page disabled.</p>
+
+      </body>
+
+    `;
+
+    window.stop();
+
+    throw new Error("Blocked unwanted cookie redirect.");
+
+  }
+
+</script>
 
   <style>
     html, body {
@@ -162,11 +211,6 @@
   </div>
 
   <script>
-    // Block nested Burner OS
-    if (window !== window.top && window.location.href.includes("burner-os")) {
-      document.body.innerHTML = "<div style='color:#f44;text-align:center;padding:40px;font-size:18px;'>Burner OS cannot run inside another Burner OS tab.</div>";
-      throw new Error("Blocked nested Burner OS iframe.");
-    }
 
     // Load page into iframe
     function loadPage(url) {
@@ -174,21 +218,9 @@
     }
 
     // Load HUD stats
-    (function(){
-      const SK = 'gameData';
-      let stats = JSON.parse(localStorage.getItem(SK) || '{}');
-      stats.xp = stats.xp || 0;
-      stats.rep = stats.rep || 0;
-      stats.rp = stats.rp || 0;
-      stats.heat = stats.heat || 0;
-      stats.cash = stats.cash || 0;
-      localStorage.setItem(SK, JSON.stringify(stats));
-      document.getElementById('xp').innerText = stats.xp;
-      document.getElementById('rep').innerText = stats.rep;
-      document.getElementById('rp').innerText = stats.rp;
-      document.getElementById('heat').innerText = stats.heat;
-      document.getElementById('cash').innerText = `$${stats.cash}`;
-    })();
+    const defaults = { xp: 0, rep: 0, rp: 0, heat: 0, cash: 0 };
+
+let stats = Object.assign(defaults, JSON.parse(localStorage.getItem(SK) || "{}"));
   </script>
 </body>
 </html>
