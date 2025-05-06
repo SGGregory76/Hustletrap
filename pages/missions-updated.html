@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+ <head>
+  <meta charset="utf-8"/>
+  <title>
+   Missions – Hustle Trap
+  </title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <style>
+   body {
+      margin: 0;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+      color: #fff;
+    }
+    .missions-container {
+      max-width: 340px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    h1 {
+      color: #4da6ff;
+      text-align: center;
+      font-size: 1.6em;
+      margin-bottom: 10px;
+    }
+    .npc-card {
+      background: #111;
+      border: 1px solid #4da6ff;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 16px;
+      box-shadow: 0 0 8px #4da6ff55;
+    }
+    .npc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .npc-name {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+    .npc-status {
+      font-size: 0.9em;
+      color: #ccc;
+    }
+    .npc-mission {
+      margin: 10px 0;
+      font-size: 0.95em;
+    }
+    .start-button {
+      display: inline-block;
+      padding: 6px 12px;
+      font-size: 0.9em;
+      background: #4da6ff;
+      border: none;
+      border-radius: 6px;
+      color: #000;
+      text-decoration: none;
+    }
+    .locked {
+      opacity: 0.4;
+    }
+    .unlock-note {
+      color: #888;
+      font-size: 0.85em;
+      margin-top: 5px;
+    }
+  </style>
+ </head>
+ <body>
+  <div class="missions-container">
+   <h1>
+    Missions
+   </h1>
+   <div class="npc-card">
+    <div class="npc-header">
+     <span class="npc-name">
+      Blaze
+     </span>
+     <span class="npc-status">
+      Completed
+     </span>
+    </div>
+    <div class="npc-mission">
+     Prologue – Setup the Burner
+    </div>
+    <a class="start-button" style="background: #333; color: #aaa; pointer-events: none;">
+     Completed
+    </a>
+   </div>
+   <div class="npc-card">
+    <div class="npc-header">
+     <span class="npc-name">
+      Blaze
+     </span>
+     <span class="npc-status">
+      Unlocked
+     </span>
+    </div>
+    <div class="npc-mission">
+     Next Mission – Street Deals &amp; Loyalty
+    </div>
+    <a class="start-button" href="https://hustletrap.blogspot.com/2025/05/blaze-next.html?m=1">
+     Start Mission
+    </a>
+   </div>
+   <div class="npc-card locked">
+    <div class="npc-header">
+     <span class="npc-name">
+      Maya
+     </span>
+     <span class="npc-status">
+      Locked
+     </span>
+    </div>
+    <div class="npc-mission">
+     Unlock after Blaze's Next Mission
+    </div>
+    <div class="unlock-note">
+     Complete Blaze’s missions to unlock
+    </div>
+   </div>
+   <div class="npc-card locked">
+    <div class="npc-header">
+     <span class="npc-name">
+      Rico
+     </span>
+     <span class="npc-status">
+      Locked
+     </span>
+    </div>
+    <div class="npc-mission">
+     Unlock via Maya’s trust arc
+    </div>
+    <div class="unlock-note">
+     Meet Maya to proceed
+    </div>
+   </div>
+   <div class="npc-card locked">
+    <div class="npc-header">
+     <span class="npc-name">
+      Skye
+     </span>
+     <span class="npc-status">
+      Locked
+     </span>
+    </div>
+    <div class="npc-mission">
+     Gain RP to unlock Skye’s story
+    </div>
+    <div class="unlock-note">
+     Requires RP: 50+
+    </div>
+   </div>
+   <div class="npc-card locked">
+    <div class="npc-header">
+     <span class="npc-name">
+      Diesel
+     </span>
+     <span class="npc-status">
+      Locked
+     </span>
+    </div>
+    <div class="npc-mission">
+     Mission locked
+    </div>
+    <div class="unlock-note">
+     Reach XP Level 3
+    </div>
+   </div>
+   <div class="npc-card locked">
+    <div class="npc-header">
+     <span class="npc-name">
+      Jax
+     </span>
+     <span class="npc-status">
+      Locked
+     </span>
+    </div>
+    <div class="npc-mission">
+     Mission locked
+    </div>
+    <div class="unlock-note">
+     Requires REP: 30+
+    </div>
+   </div>
+  </div>
+ </body>
+</html>
