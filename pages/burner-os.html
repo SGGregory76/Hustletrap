@@ -1,226 +1,395 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <title>Burner OS - Hustle Trap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://sggregory76.github.io/Hustletrap/CSS/styles.css?cachebust=123" />
-  
-  
-  <script>
 
-  // BLOCK nested Burner OS iframe from loading itself
+  <title>Burner OS – Hustle Trap</title>
 
-  if (window !== window.top && window.location.href.includes("burner-os")) {
-
-    document.documentElement.innerHTML = `
-
-      <body style="background:#000; color:#f44; font-family:sans-serif; padding:40px; text-align:center;">
-
-        <h2>Burner OS blocked self-loading inside an iframe.</h2>
-
-        <p>Please return to the main screen.</p>
-
-      </body>
-
-    `;
-
-    window.stop();
-
-    throw new Error("Blocked self-loading OS.");
-
-  }
-
-  // BLOCK unwanted theme redirect (niadzgn cookie.html)
-
-  if (window.location.href.includes("niadzgn.blogspot.com/p/cookie.html")) {
-
-    document.documentElement.innerHTML = `
-
-      <body style="background:#000; color:#f44; font-family:sans-serif; padding:40px; text-align:center;">
-
-        <h2>This page has been blocked by HustleTrap.</h2>
-
-        <p>Redirected theme page disabled.</p>
-
-      </body>
-
-    `;
-
-    window.stop();
-
-    throw new Error("Blocked unwanted cookie redirect.");
-
-  }
-
-</script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <style>
+
+    * {
+
+      box-sizing: border-box;
+
+    }
+
     html, body {
+
       margin: 0;
+
       padding: 0;
+
       background: #000;
+
       font-family: 'Segoe UI', sans-serif;
+
       display: flex;
+
       justify-content: center;
-      align-items: flex-start;
-      padding-top: 20px;
-      height: 100%;
+
+      align-items: start;
+
       min-height: 100vh;
-      overflow: auto;
-    }
 
-    .screen-wrap {
       width: 100%;
-      display: flex;
-      justify-content: center;
+
+      overflow-x: hidden;
+
     }
 
-    .phone-ui {
-      width: 340px;
+    body {
+
+      padding: 20px 0;
+
+    }
+
+    .phone {
+
+      width: 100%;
+
       max-width: 340px;
-      height: 600px;
+
       background: #121212;
+
       border: 2px solid #444;
-      border-radius: 20px;
-      box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
+
+      border-radius: 24px;
+
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+
       display: flex;
+
       flex-direction: column;
+
       overflow: hidden;
+
     }
 
     .phone-header {
+
       background: #111;
-      color: #ccc;
-      padding: 10px 0;
+
+      padding: 12px;
+
       text-align: center;
-      font-size: 20px;
+
+      color: #ccc;
+
       font-weight: bold;
-      border-bottom: 1px solid #444;
+
+      font-size: 18px;
+
+      border-bottom: 1px solid #333;
+
     }
 
     .app-grid {
-      background: #181818;
-      padding: 10px;
+
       display: grid;
+
       grid-template-columns: repeat(3, 1fr);
+
       gap: 10px;
-      flex-shrink: 0;
+
+      padding: 12px;
+
+      background: #181818;
+
     }
 
     .app-icon {
+
       background: #1f1f1f;
+
       border: 1px solid #444;
-      border-radius: 12px;
+
+      border-radius: 10px;
+
       padding: 10px;
+
       text-align: center;
+
       color: #ccc;
+
       font-size: 14px;
+
       cursor: pointer;
-      transition: all 0.3s;
+
     }
 
     .app-icon:hover {
+
       background: #2c2c2c;
+
       color: #fff;
-      transform: scale(1.05);
+
     }
 
     .icon {
-      font-size: 20px;
-      margin-bottom: 4px;
+
+      font-size: 18px;
+
       display: block;
+
+      margin-bottom: 4px;
+
     }
 
-    .hud-strip {
-      background: #111;
-      border-top: 1px solid #333;
-      border-bottom: 1px solid #333;
-      margin: 0 10px;
-      padding: 6px 0;
-      color: #ccc;
-      font-size: 13px;
-      text-align: center;
+    .hud {
+
       display: flex;
+
       justify-content: space-around;
+
       align-items: center;
-      flex-shrink: 0;
+
+      background: #111;
+
+      color: #ccc;
+
+      font-size: 13px;
+
+      padding: 6px;
+
+      border-top: 1px solid #333;
+
+      border-bottom: 1px solid #333;
+
     }
 
-    .hud-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
+    .iframe-wrap {
+
+      position: relative;
+
+      flex-grow: 1;
+
+      min-height: 400px;
+
     }
 
     iframe {
-      flex-grow: 1;
+
       width: 100%;
-      height: 100%;
-      min-height: 300px;
+
+      min-height: 360px;
+
       border: none;
+
       background: #0a0a0a;
-      overflow-y: auto;
-      display: block;
+
     }
+
+    #placeholder {
+
+      position: absolute;
+
+      top: 0;
+
+      left: 0;
+
+      right: 0;
+
+      bottom: 0;
+
+      display: flex;
+
+      flex-direction: column;
+
+      justify-content: center;
+
+      align-items: center;
+
+      color: #888;
+
+      font-size: 14px;
+
+      text-align: center;
+
+      z-index: 2;
+
+      background: #0a0a0a;
+
+      opacity: 1;
+
+      transition: opacity 0.6s ease;
+
+    }
+
+    #placeholder.fadeout {
+
+      opacity: 0;
+
+    }
+
+    #spinner {
+
+      margin-top: 10px;
+
+      border: 2px solid #333;
+
+      border-top: 2px solid #ccc;
+
+      border-radius: 50%;
+
+      width: 20px;
+
+      height: 20px;
+
+      animation: spin 1s linear infinite;
+
+    }
+
+    @keyframes spin {
+
+      0% { transform: rotate(0deg); }
+
+      100% { transform: rotate(360deg); }
+
+    }
+
   </style>
+
 </head>
 
 <body>
-  <div class="screen-wrap">
-    <div class="phone-ui" id="mainPhone">
 
-      <!-- Burner OS Title -->
-      <div class="phone-header">Burner OS</div>
+  <div class="phone">
 
-      <!-- App Buttons -->
-      <div class="app-grid" id="appGrid">
-        <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/missions.html?m=1')">
-          <span class="icon">📋</span><div>Missions</div>
-        </div>
-        <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/contacts.html?m=1')">
-          <span class="icon">👥</span><div>Contacts</div>
-        </div>
-        <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/inventory.html?m=1')">
-          <span class="icon">🎒</span><div>Inventory</div>
-        </div>
-        <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/crafting.html?m=1')">
-          <span class="icon">⚗️</span><div>Crafting</div>
-        </div>
-        <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/map.html?m=1')">
-          <span class="icon">🗺️</span><div>Map</div>
-        </div>
-        <div class="app-icon" onclick="loadPage('https://hustletrap.blogspot.com/p/log.html?m=1')">
-          <span class="icon">🧾</span><div>Log</div>
-        </div>
+    <div class="phone-header">Burner OS</div>
+
+    <div class="app-grid">
+
+      <div class="app-icon" onclick="loadPage('https://hustle-trap.blogspot.com/p/missions.html?m=1')">
+
+        <span class="icon">📋</span><div>Missions</div>
+
       </div>
 
-      <!-- HUD Stats -->
-      <div class="hud-strip" id="hud-strip">
-        <div class="hud-item">⭐ <span id="xp">0</span></div>
-        <div class="hud-item">📢 <span id="rep">0</span></div>
-        <div class="hud-item">🧪 <span id="rp">0</span></div>
-        <div class="hud-item">🔥 <span id="heat">0</span></div>
-        <div class="hud-item">💵 <span id="cash">0</span></div>
+      <div class="app-icon" onclick="loadPage('https://hustle-trap.blogspot.com/p/contacts.html?m=1')">
+
+        <span class="icon">👥</span><div>Contacts</div>
+
       </div>
 
-      <!-- Iframe Content -->
-      <iframe id="appFrame"></iframe>
+      <div class="app-icon" onclick="loadPage('https://hustle-trap.blogspot.com/p/inventory_6.html?m=1')">
+
+        <span class="icon">🎒</span><div>Inventory</div>
+
+      </div>
+
+      <div class="app-icon" onclick="loadPage('https://hustle-trap.blogspot.com/p/crafting.html?m=1')">
+
+        <span class="icon">⚗️</span><div>Crafting</div>
+
+      </div>
+
+      <div class="app-icon" onclick="loadPage('https://hustle-trap.blogspot.com/p/map.html?m=1')">
+
+        <span class="icon">🗺️</span><div>Map</div>
+
+      </div>
+
+      <div class="app-icon" onclick="loadPage('https://hustle-trap.blogspot.com/p/log.html?m=1')">
+
+        <span class="icon">🧾</span><div>Log</div>
+
+      </div>
 
     </div>
+
+    <div class="hud">
+
+      <div>⭐ <span id="xp">0</span></div>
+
+      <div>📢 <span id="rep">0</span></div>
+
+      <div>🧪 <span id="rp">0</span></div>
+
+      <div>🔥 <span id="heat">0</span></div>
+
+      <div>💵 <span id="cash">0</span></div>
+
+    </div>
+
+    <div class="iframe-wrap">
+
+      <iframe id="appFrame" src=""></iframe>
+
+      <div id="placeholder">
+
+        Welcome to Burner OS<br>Tap an icon to begin.
+
+        <div id="spinner"></div>
+
+      </div>
+
+    </div>
+
   </div>
 
   <script>
 
-    // Load page into iframe
     function loadPage(url) {
-      document.getElementById("appFrame").src = url;
+
+      const frame = document.getElementById("appFrame");
+
+      const placeholder = document.getElementById("placeholder");
+
+      placeholder.classList.remove("fadeout");
+
+      placeholder.style.display = "flex";
+
+      frame.onload = () => {
+
+        placeholder.classList.add("fadeout");
+
+        setTimeout(() => {
+
+          placeholder.style.display = "none";
+
+        }, 600);
+
+      };
+
+      frame.src = url;
+
     }
 
-    // Load HUD stats
-    const defaults = { xp: 0, rep: 0, rp: 0, heat: 0, cash: 0 };
+    (function initStats() {
 
-let stats = Object.assign(defaults, JSON.parse(localStorage.getItem(SK) || "{}"));
+      const stats = JSON.parse(localStorage.getItem('playerStats') || '{}');
+
+      stats.xp ??= 0;
+
+      stats.rep ??= 0;
+
+      stats.rp ??= 0;
+
+      stats.heat ??= 0;
+
+      stats.cash ??= 0;
+
+      localStorage.setItem('playerStats', JSON.stringify(stats));
+
+      document.getElementById("xp").textContent = stats.xp;
+
+      document.getElementById("rep").textContent = stats.rep;
+
+      document.getElementById("rp").textContent = stats.rp;
+
+      document.getElementById("heat").textContent = stats.heat;
+
+      document.getElementById("cash").textContent = `$${stats.cash}`;
+
+    })();
+
   </script>
+
 </body>
+
 </html>
