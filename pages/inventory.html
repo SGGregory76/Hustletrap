@@ -1,74 +1,242 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Inventory - HustleTrap</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Game Log – Hustle Trap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       background: #000;
-      color: #fff;
+      color: #eee;
       font-family: 'Segoe UI', sans-serif;
-      padding: 20px;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
     }
-    h2 {
+    .screen-wrap {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+    .phone-ui {
+      width: 340px;
+      background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+      padding: 16px;
+      margin: 20px auto;
+      border-radius: 24px;
+      box-shadow: inset 0 0 0 2px #333, 0 4px 10px rgba(0,0,0,0.7);
+      border: 1px solid #444;
+    }
+    h1 {
       text-align: center;
-      margin-bottom: 20px;
-    }
-    .inventory-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-    }
-    .inv-slot {
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 8px;
+      color: #fff;
+      font-size: 1.6em;
+      margin: 4px 0 12px;
+      background: #000;
       padding: 10px;
-      text-align: center;
+      border-radius: 12px;
+      text-shadow: 0 1px 4px rgba(255,255,255,0.2);
+    }
+    #logControls, #tagFilters {
       display: flex;
       flex-direction: column;
       align-items: center;
+      gap: 10px;
+      margin: 10px 0;
     }
-    .inv-slot img {
-      width: 48px;
-      height: 48px;
-      margin-bottom: 8px;
+    #tagFilters button {
+      background: #222;
+      border: 1px solid #555;
+      color: #eee;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 0.85em;
+      cursor: pointer;
     }
+    #filterLog, #copyLog, #resetGame {
+      width: 100%;
+      padding: 10px;
+      font-size: 1em;
+      border: none;
+      border-radius: 6px;
+    }
+    #filterLog {
+      background: #111;
+      color: #eee;
+      border: 1px solid #444;
+    }
+    #copyLog {
+      background: #4169e1;
+      color: #fff;
+    }
+    #resetGame {
+      background: #aa2222;
+      color: #fff;
+    }
+    #gameLog {
+      background: #000;
+      border: 1px solid #666;
+      border-radius: 6px;
+      padding: 12px;
+      margin-top: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .log-entry {
+      padding: 6px 0;
+      border-bottom: 1px solid #333;
+      font-size: 0.9em;
+    }
+    .timestamp {
+      display: block;
+      color: #888;
+      font-size: 0.75em;
+      margin-top: 2px;
+    }
+    .log-tag {
+      display: inline-block;
+      font-size: 0.75em;
+      font-weight: bold;
+      color: #fff;
+      padding: 4px 8px;
+      border-radius: 10px;
+      margin-right: 6px;
+      border: 1px solid #333;
+      background-color: #222;
+      box-shadow: inset 0 0 2px #000, 0 1px 1px rgba(255,255,255,0.1);
+      text-transform: uppercase;
+    }
+    .log-tag.mission[title]    { background: #4169e1; }
+    .log-tag.sale[title]       { background: #28a745; }
+    .log-tag.buy[title]        { background: #20c997; }
+    .log-tag.alert[title]      { background: #ff3b3b; }
+    .log-tag.system[title]     { background: #999;     }
+    .log-tag.reward[title]     { background: #ffc107; }
+    .log-tag.inventory[title]  { background: #9b59b6; }
+    .log-tag.research[title]   { background: #fd7e14; }
   </style>
 </head>
 <body>
+  <div class="screen-wrap">
+    <div class="phone-ui">
+      <h1>Game Log</h1>
 
-<h2>Inventory</h2>
-<div class="inventory-grid" id="inventoryGrid"></div>
+      <div id="logControls">
+        <input type="text" id="filterLog" placeholder="Search log..." />
+        <button id="copyLog">Copy All Logs</button>
+        <button id="resetGame">Reset Game Progress</button>
+      </div>
 
-<script>
-const ICONS = {
-  "Marijuana": "https://yourcdn.com/icons/marijuana.png",
-  "Meth": "https://yourcdn.com/icons/meth.png",
-  "Crack": "https://yourcdn.com/icons/crack.png",
-  "Coke": "https://yourcdn.com/icons/coke.png",
-  "Packaging": "https://yourcdn.com/icons/packaging.png",
-  "Grinding Tool": "https://yourcdn.com/icons/grinding.png",
-  "Extraction Kit": "https://yourcdn.com/icons/extraction.png"
-};
+      <div id="tagFilters">
+        <button onclick="filterByType('all')">Show All</button>
+        <button onclick="filterByType('mission')">🔹 Mission</button>
+        <button onclick="filterByType('sale')">💰 Sale</button>
+        <button onclick="filterByType('buy')">🛒 Buy</button>
+        <button onclick="filterByType('alert')">⚠️ Alert</button>
+        <button onclick="filterByType('reward')">🎁 Reward</button>
+        <button onclick="filterByType('inventory')">🎒 Inventory</button>
+        <button onclick="filterByType('research')">🔬 Research</button>
+        <button onclick="filterByType('system')">⚙️ System</button>
+      </div>
 
-const data = JSON.parse(localStorage.getItem("gameData") || "{}");
-const items = data.inventory || [];
+      <div id="gameLog"></div>
+    </div>
+  </div>
 
-const grid = document.getElementById("inventoryGrid");
-if (items.length === 0) {
-  grid.innerHTML = "<p style='grid-column: span 2; text-align:center;'>No items in inventory.</p>";
-} else {
-  items.forEach(item => {
-    const icon = ICONS[item] || "https://via.placeholder.com/48?text=?";
-    const div = document.createElement("div");
-    div.className = "inv-slot";
-    div.innerHTML = `<img src="${icon}" alt="${item}"><span>${item}</span>`;
-    grid.appendChild(div);
-  });
-}
-</script>
+  <script>
+    const logContainer = document.getElementById("gameLog");
+    const filterInput = document.getElementById("filterLog");
 
+    const typeEmojis = {
+      mission: "🔹", sale: "💰", buy: "🛒", alert: "⚠️",
+      system: "⚙️", reward: "🎁", inventory: "🎒", research: "🔬"
+    };
+
+    const typeTitles = {
+      mission: "Mission Completed", sale: "Sale Logged", buy: "Purchase Made",
+      alert: "Heat or Warning", system: "System Action",
+      reward: "Gained Reward", inventory: "Inventory Change", research: "Research Progress"
+    };
+
+    const gameLog = JSON.parse(localStorage.getItem("gameLog") || "[]");
+    let activeTypeFilter = "all";
+
+    function renderLog(filter = "") {
+      const filtered = gameLog.filter(entry => {
+        const matchText = entry.text.toLowerCase().includes(filter.toLowerCase());
+        const matchType = (activeTypeFilter === "all") || (entry.type === activeTypeFilter);
+        return matchText && matchType;
+      });
+
+      if (!filtered.length) {
+        logContainer.innerHTML = "<div class='log-entry'>No matching entries.</div>";
+        return;
+      }
+
+      logContainer.innerHTML = filtered.map(entry => {
+        const type = entry.type || "system";
+        const emoji = typeEmojis[type] || "";
+        const tooltip = typeTitles[type] || "Log Entry";
+        const tag = `<span class='log-tag ${type}' title='${tooltip}'>${emoji} ${type}</span>`;
+        const rewards = entry.rewards;
+        let rewardLine = "";
+        if (type === "mission" && rewards) {
+          rewardLine = `<div class='timestamp'>
+            🎯 Rewards:
+            ${rewards.xp ? "⭐ " + rewards.xp : ""}
+            ${rewards.rep ? "🏆 " + rewards.rep : ""}
+            ${rewards.rp ? "🧠 " + rewards.rp : ""}
+            ${rewards.cash ? "💵 $" + rewards.cash : ""}
+            ${rewards.heat ? "🔥 " + rewards.heat : ""}
+          </div>`;
+        }
+        return `<div class='log-entry'>${tag}${entry.text}<span class='timestamp'>${new Date(entry.time).toLocaleString()}</span>${rewardLine}</div>`;
+      }).join("");
+
+      logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    function filterByType(type) {
+      activeTypeFilter = type;
+      renderLog(filterInput.value);
+    }
+
+    filterInput.addEventListener("input", () => renderLog(filterInput.value));
+
+    document.getElementById("copyLog").addEventListener("click", () => {
+      const raw = gameLog.map(entry =>
+        `[${entry.type?.toUpperCase() || "SYSTEM"}] ${entry.text} (${new Date(entry.time).toLocaleString()})`
+      ).join("\\n");
+      navigator.clipboard.writeText(raw).then(() => alert("Logs copied!"));
+    });
+
+    document.getElementById("resetGame").addEventListener("click", function () {
+      if (confirm("Are you sure you want to reset ALL game progress?")) {
+        localStorage.setItem("xp", 0);
+        localStorage.setItem("rep", 0);
+        localStorage.setItem("rp", 0);
+        localStorage.setItem("heat", 0);
+        localStorage.setItem("level", 1);
+        localStorage.setItem("cash", 0);
+        localStorage.removeItem("inventory");
+        localStorage.removeItem("gameLog");
+        Object.keys(localStorage).forEach(key => {
+          if (key.startsWith("mission_")) localStorage.removeItem(key);
+        });
+        alert("Game progress has been reset. Returning to Burner OS...");
+        const burnerVersion = localStorage.getItem("burner_version") || "v0.36";
+        const burnerMap = {
+          "v0.36": "https://hustletrap.blogspot.com/p/burner-os.html?m=1",
+          "v0.37": "https://hustletrap.blogspot.com/p/burner-os-v037.html?m=1"
+        };
+        window.location.href = burnerMap[burnerVersion] || burnerMap["v0.36"];
+      }
+    });
+
+    renderLog();
+  </script>
 </body>
 </html>
