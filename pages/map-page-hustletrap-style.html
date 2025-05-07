@@ -1,0 +1,89 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Map – HustleTrap</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      background: #000;
+      color: #ccc;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+    .screen-wrap {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+    .phone-ui {
+      width: 100%;
+      max-width: 340px;
+      background: #121212;
+      padding: 16px;
+      margin: 20px auto;
+      border-radius: 24px;
+      box-shadow: 0 0 20px rgba(255,255,255,0.05), inset 0 0 0 2px #333;
+      border: 2px solid #444;
+    }
+    h1 {
+      text-align: center;
+      color: #66aaff;
+      font-size: 1.5em;
+      margin: 0 0 16px;
+      text-shadow: 0 1px 3px #000;
+    }
+    .poi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .poi {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      text-align: center;
+      padding: 16px 10px;
+      font-size: 0.95em;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      box-shadow: inset 0 0 5px #000;
+    }
+    .poi:hover {
+      background: #2c2c2c;
+    }
+    .poi-icon {
+      font-size: 1.5em;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .locked {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-wrap">
+    <div class="phone-ui">
+      <h1>Map</h1>
+      <div class="poi-grid">
+        <div class="poi"><span class="poi-icon">🏠</span>Home Base</div>
+        <div class="poi"><span class="poi-icon">🌿</span>Grow Site</div>
+        <div class="poi"><span class="poi-icon">⚗️</span>Chem Lab</div>
+        <div class="poi"><span class="poi-icon">🧑‍🔬</span>Research Hub</div>
+        <div class="poi"><span class="poi-icon">🚪</span>Alley Deals</div>
+        <div class="poi locked"><span class="poi-icon">🚔</span>Police Checkpoint</div>
+        <div class="poi"><span class="poi-icon">📦</span>Storage Unit</div>
+        <div class="poi"><span class="poi-icon">🏪</span>Street Market</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
